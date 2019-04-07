@@ -1,0 +1,8 @@
+<Context>
+  <Resource name="jdbc/faceSOS" auth="Container"
+    type="javax.sql.DataSource"
+    username="root" password="root"
+    driverClassName="com.mysql.jdbc.Driver"
+    url="jdbc:mysql://localhost:3306/faceSOS?useSSL=false"
+    maxActive="6" maxIdle="3"/>
+</Context>
