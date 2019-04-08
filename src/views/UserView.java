@@ -49,7 +49,6 @@ public class UserView {
 	@Path("/{userId}")
 	public Response removeUser(
 			@PathParam("userId") String userId) throws SQLException {
-		System.out.println("DELETE");
 		return new UserController(this.uriInfo).removeUser(userId);
 	}
 }

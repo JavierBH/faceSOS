@@ -22,6 +22,7 @@ public class UserController   {
 	/*
 	 * Get basic data from userId
 	 * */
+	@SuppressWarnings("unused")
 	public Response getUser(String userId) throws SQLException {
 		// Res stores body response
 		HashMap<String, Object> res = new HashMap<String, Object>();
@@ -31,7 +32,15 @@ public class UserController   {
 		UserDB db = new UserDB();
 		ResultSet rs = db.getUser(user);
 		
-		if(rs != null && rs.next()) {
+		if (!rs.next()) {
+			res.put("message", "User not found");
+			return Response
+					.status(Response.Status.BAD_REQUEST)
+					.entity(res)
+					.build();
+		}
+		
+		if(rs != null) {
 			
 			// Prepare data to send back to client
 			user.setName(rs.getString("name"));
@@ -49,7 +58,7 @@ public class UserController   {
 		}
 
 		// Error
-		return this.getError(res, "There was a problem. Unable to get user information");
+		return this.setMessage(res, "There was a problem. Unable to get user information");
 	}
 	
 	
@@ -92,7 +101,7 @@ public class UserController   {
 		}
 		
 		// Error
-		return this.getError(res, "There was an error. Unable to create user");
+		return this.setMessage(res, "There was an error. Unable to create user");
 	}
 	
 	
@@ -131,7 +140,7 @@ public class UserController   {
 		}
 		
 		// Error
-		return this.getError(res, "There was an error. Unable to update user");
+		return this.setMessage(res, "There was an error. Unable to update user");
 	}
 	
 	
@@ -146,18 +155,15 @@ public class UserController   {
 		UserResource user = new UserResource(userId);
 		UserDB db = new UserDB();
 		int status = db.removeUser(user);
-		
 		if(status > 0) {
 			
 			// Prepare data to send back to client
 			res.put("data", user);
 			res.put("message", "User removed succesfully");
-			String location = this.uriInfo.getAbsolutePath() + "/user/" + user.getId();
+			System.out.println(user.getId());
 			return Response
 					.status(Response.Status.OK)
 					.entity(user)
-					.header("Location", location)
-					.header("Content-Location", location)
 					.build();
 			
 		} else if (status == 0) {
@@ -171,14 +177,14 @@ public class UserController   {
 		}
 		
 		// Error
-		return this.getError(res, "There was an error. Unable to remove user");
+		return this.setMessage(res, "There was an error. Unable to remove user");
 	}
 	
 	
 	/*
 	 * Add error message to response
 	 * */
-	private Response getError(HashMap<String, Object> res, String err) {
+	private Response setMessage(HashMap<String, Object> res, String err) {
 		res.put("message", err);
 		return Response
 				.status(Response.Status.INTERNAL_SERVER_ERROR)
