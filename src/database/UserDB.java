@@ -62,4 +62,21 @@ public class UserDB extends Conexion {
 		}
 		return -1;
 	}
+	
+	public ResultSet getUsers(String name) throws SQLException {
+		if(this.conn != null) {
+			PreparedStatement ps;
+			if(name.equals("")) {
+				String query = "SELECT * FROM `faceSOS`.`users`";
+				ps = this.conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			} else {
+				String query = "SELECT * FROM `faceSOS`.`users` WHERE name LIKE ?;";
+				ps = this.conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+				ps.setString(1, "%" + name + "%");
+			}
+			ResultSet rs = ps.executeQuery();
+			return rs;
+		}
+		return null;
+	}
 }

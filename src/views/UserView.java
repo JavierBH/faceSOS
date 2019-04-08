@@ -9,6 +9,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -28,6 +30,12 @@ public class UserView {
 	public Response getUser(
 			@PathParam("userId") String userId) throws SQLException {
 		return new UserController(this.uriInfo).getUser(userId);
+	}
+	
+	@GET
+	public Response getUsers(
+			@QueryParam("name") @DefaultValue("") String name) throws SQLException {
+		return new UserController(this.uriInfo).getUsers(name);
 	}
 	
 	@POST

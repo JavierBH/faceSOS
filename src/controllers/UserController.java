@@ -1,5 +1,7 @@
 package controllers;
 
+import java.util.ArrayList;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -22,7 +24,6 @@ public class UserController   {
 	/*
 	 * Get basic data from userId
 	 * */
-	@SuppressWarnings("unused")
 	public Response getUser(String userId) throws SQLException {
 		// Res stores body response
 		HashMap<String, Object> res = new HashMap<String, Object>();
@@ -60,6 +61,7 @@ public class UserController   {
 		// Error
 		return this.setMessage(res, "There was a problem. Unable to get user information");
 	}
+	
 	
 	
 	/*
@@ -178,6 +180,49 @@ public class UserController   {
 		
 		// Error
 		return this.setMessage(res, "There was an error. Unable to remove user");
+	}
+	
+	
+	/*
+	 * Get basic data from userId
+	 * */
+	public Response getUsers(String name) throws SQLException {
+		
+		// Res stores body response
+		HashMap<String, Object> res = new HashMap<String, Object>();
+		
+		// Get data from DB
+		UserDB db = new UserDB();
+		ResultSet rs = db.getUsers(name);
+		
+		if(rs != null) {
+			// Array with users
+			ArrayList<UserResource> users = new ArrayList<UserResource>();
+			while (rs.next()) {
+	            UserResource user = new UserResource(
+	            		rs.getInt("user_id"),
+	            		rs.getString("name"),
+	            		rs.getString("username"));
+	            user.setLocation(this.uriInfo.getAbsolutePath() + "/" + user.getId());
+	            users.add(user);
+	        }
+			
+			// Array with users
+			HashMap<String, Object> data = new HashMap<String, Object>();
+			data.put("users", users);
+			data.put("n", users.size());
+
+			// Prepare data to send back to client
+			res.put("data",	data);
+			res.put("message", "Data loaded succesfully");
+			return Response
+					.status(Response.Status.CREATED)
+					.entity(res)
+					.build();
+		}
+
+		// Error
+		return this.setMessage(res, "There was a problem. Unable to get user information");
 	}
 	
 	
