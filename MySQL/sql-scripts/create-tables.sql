@@ -1,3 +1,4 @@
+use faceSOS;
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL,
@@ -8,12 +9,13 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 CREATE TABLE IF NOT EXISTS `chats` (
   `chat_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `from_user_id` int(10) unsigned NOT NULL,
-  `to_user_id` int(10) unsigned NOT NULL,
+  `sender_user_id` int(10) unsigned NOT NULL,
+  `receiver_user_id` int(10) unsigned NOT NULL,
   `content` text NOT NULL,
+  `sent_at` TIMESTAMP NOT NULL DEFAULT NOW(),
   PRIMARY KEY (`chat_id`),
-  FOREIGN KEY (`from_user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (`to_user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (`sender_user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`receiver_user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
 
 
@@ -22,8 +24,8 @@ CREATE TABLE IF NOT EXISTS `friends` (
   `friend_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`user_id`,`friend_id`),
   KEY `FK_FRIENDS_2` (`friend_id`),
-  CONSTRAINT `FK_FRIENDS_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
-  CONSTRAINT `FK_FRIENDS_2` FOREIGN KEY (`friend_id`) REFERENCES `users` (`user_id`)
+  CONSTRAINT `FK_FRIENDS_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `FK_FRIENDS_2` FOREIGN KEY (`friend_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 

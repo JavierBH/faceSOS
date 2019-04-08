@@ -21,7 +21,7 @@ public class UserDB extends Conexion {
 		if(this.conn != null) {
 			String query = "SELECT * FROM `faceSOS`.`users` WHERE user_id = ?;";
 			PreparedStatement ps = this.conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-			ps.setInt(1, Integer.parseInt(user.getId()));
+			ps.setInt(1, user.getId());
 			ResultSet rs = ps.executeQuery();
 			return rs;
 		}
@@ -32,8 +32,6 @@ public class UserDB extends Conexion {
 		// TODO: unique username value. If already exists, then error
 		if(this.conn != null) {
 			String query = "INSERT INTO `faceSOS`.`users`(name,username) VALUE (?,?);";
-			
-			// Raul explicame que hace GENERATED_KEYS si lo sabes
 			PreparedStatement ps = this.conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 			ps.setString(1, user.getName());
 			ps.setString(2, user.getUsername());
@@ -44,21 +42,23 @@ public class UserDB extends Conexion {
 		return null;
 	}
 	
-	public ResultSet editUser(UserResource user) throws SQLException {
+	public int editUser(UserResource user) throws SQLException {
 		if(this.conn != null) {
 			String query = "UPDATE `faceSOS`.`users` SET name = ? WHERE user_id = ?;";
-			PreparedStatement ps = this.conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement ps = this.conn.prepareStatement(query);
 			ps.setString(1, user.getName());
-			ps.setString(2, user.getId());
-			ps.executeUpdate();
-			ResultSet rs = ps.getGeneratedKeys();
-			return rs;
+			ps.setInt(2, user.getId());
+			return ps.executeUpdate();
 		}
-		return null;
+		return -1;
 	}
 	
 	public int removeUser(UserResource user) throws SQLException {
 		if(this.conn != null) {
+			String query = "DELETE FROM `faceSOS`.`users` WHERE user_id = ?;";
+			PreparedStatement ps = this.conn.prepareStatement(query);
+			ps.setInt(1, user.getId());
+			return ps.executeUpdate();
 		}
 		return -1;
 	}

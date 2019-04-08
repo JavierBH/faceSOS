@@ -1,16 +1,15 @@
 package controllers;
-import database.*;
-import resources.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
 
-import javax.ws.rs.core.Context;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import database.UserDB;
+import resources.UserResource;
+
+import java.util.HashMap;
 
 public class UserController   {
 	private UriInfo uriInfo;
@@ -20,68 +19,170 @@ public class UserController   {
 	}
 	
 	
+	/*
+	 * Get basic data from userId
+	 * */
 	public Response getUser(String userId) throws SQLException {
+		// Res stores body response
+		HashMap<String, Object> res = new HashMap<String, Object>();
+		
+		// Get data from DB
 		UserResource user = new UserResource(userId);
 		UserDB db = new UserDB();
 		ResultSet rs = db.getUser(user);
+		
 		if(rs != null && rs.next()) {
-			System.out.println();
+			
+			// Prepare data to send back to client
 			user.setName(rs.getString("name"));
 			user.setUsername(rs.getString("username"));
+			res.put("message", "Data loaded succesfully");
+			res.put("data", user);
 			String location = this.uriInfo.getAbsolutePath() + "/user/" + userId;
+			
 			return Response
 					.status(Response.Status.CREATED)
-					.entity(user)
+					.entity(res)
 					.header("Location", location)
 					.header("Content-Location", location)
 					.build();
 		}
-		// Error message should be an object
-		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Unable to get user information").build();
-	}
 
+		// Error
+		return this.getError(res, "There was a problem. Unable to get user information");
+	}
+	
+	
+	/*
+	 * Create new user from information in user variable
+	 * */
 	public Response createUser(UserResource user) throws SQLException {
+		// Res stores body response
+		HashMap<String, Object> res = new HashMap<String, Object>();
+		
+		// Check body data
+		if (user.getName() == null || user.getUsername() == null) {
+			res.put("message", "Unable to create user. "
+					+ "One or more of the following fields are empty: "
+					+ "user or/and username");
+			return Response
+					.status(Response.Status.BAD_REQUEST)
+					.entity(res)
+					.build();
+		}
+		
+		// Set data in DB
 		UserDB db = new UserDB();
 		ResultSet rs = db.createUser(user);
+		
 		if(rs != null && rs.next()) {
+			
+			// Prepare data to send back to client
 			user.setId(rs.getString(1));
+			res.put("message", "User created succesfully");
+			res.put("data", user);
 			String location = this.uriInfo.getAbsolutePath() + "/user/" + user.getId();
+			
 			return Response
 					.status(Response.Status.CREATED)
-					.entity(user)
+					.entity(res)
 					.header("Location", location)
 					.header("Content-Location", location)
 					.build();
 		}
-		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Unable to create user").build();
+		
+		// Error
+		return this.getError(res, "There was an error. Unable to create user");
 	}
 	
+	
+	/*
+	 * Edit user information using userId. If userId doesn't exists, then it create a new one
+	 * */
 	public Response editUser(String userId, UserResource user) throws SQLException {
+		// Res stores body response
+		HashMap<String, Object> res = new HashMap<String, Object>();
+		
+		// Edit data in DB
 		user.setId(userId);
 		UserDB db = new UserDB();
-		ResultSet rs = db.editUser(user);
-		if(rs != null && rs.next()) {
-			System.out.println("LÑO");
+		int status = db.editUser(user);
+		
+		if (status > 0) {
+			
+			// Prepare data to send back to client
+			user.setUsername(null);
+			res.put("data", user);
+			res.put("message", "Data updated succesfully");
+			String location = this.uriInfo.getAbsolutePath() + "/user/" + user.getId();
+			
+			return Response
+					.status(Response.Status.OK)
+					.entity(res)
+					.header("Location", location)
+					.header("Content-Location", location)
+					.build();
+			
+		} else if(status == 0) {
+			
+			// User doesn't exist so we create it
+			return this.createUser(user);
+			
+		}
+		
+		// Error
+		return this.getError(res, "There was an error. Unable to update user");
+	}
+	
+	
+	/*
+	 * Remove a user using userId
+	 * */
+	public Response removeUser(String userId) throws SQLException {
+		// Res stores body response
+		HashMap<String, Object> res = new HashMap<String, Object>();
+		
+		// Delete data in DB
+		UserResource user = new UserResource(userId);
+		UserDB db = new UserDB();
+		int status = db.removeUser(user);
+		
+		if(status > 0) {
+			
+			// Prepare data to send back to client
+			res.put("data", user);
+			res.put("message", "User removed succesfully");
 			String location = this.uriInfo.getAbsolutePath() + "/user/" + user.getId();
 			return Response
-					// TODO check Status.ACCEPTED ???
-					.status(Response.Status.ACCEPTED)
+					.status(Response.Status.OK)
 					.entity(user)
 					.header("Location", location)
 					.header("Content-Location", location)
 					.build();
+			
+		} else if (status == 0) {
+			
+			// User doesn't exist so we return bad request
+			res.put("message", "User does not exist");
+			return Response
+					.status(Response.Status.BAD_REQUEST)
+					.entity(res)
+					.build();
 		}
-		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Unable to create user").build();
+		
+		// Error
+		return this.getError(res, "There was an error. Unable to remove user");
 	}
 	
-	public Response removeUser(String userId) throws SQLException {
-		UserResource user = new UserResource(userId);
-		UserDB db = new UserDB();
-		int i = db.removeUser(user);
-		if(i > 0) {
-			return Response.status(Response.Status.CREATED).entity(user).
-				header("Location", i).header("Content-Location", i).build();
-		}
-		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Unable to create user").build();
+	
+	/*
+	 * Add error message to response
+	 * */
+	private Response getError(HashMap<String, Object> res, String err) {
+		res.put("message", err);
+		return Response
+				.status(Response.Status.INTERNAL_SERVER_ERROR)
+				.entity(res)
+				.build();
 	}
 }
