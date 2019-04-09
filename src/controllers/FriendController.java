@@ -1,6 +1,7 @@
 package controllers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -9,38 +10,60 @@ import database.FriendDB;
 import database.UserDB;
 import resources.UserResource;
 
-public class FriendController {
-	private UriInfo uriInfo;
-
+public class FriendController extends Controller{
+	
 	public FriendController(UriInfo uriInfo) {
-		this.uriInfo=uriInfo;
+		super(uriInfo);
 	}
 	
-	public Response addFriend(String idUser,String idFriend) throws SQLException {
+	public Response addFriend(String friend1Id,String friend2Id) throws SQLException {
+		// Res stores body response
+		HashMap<String, Object> res = new HashMap<String, Object>();
 		
-		if(!idUser.equals(idFriend)) {
-			UserResource user=new UserResource(idFriend);
+		UserResource friend1 = new UserResource(friend1Id);
+		UserResource friend2 = new UserResource(friend2Id);
+		
+		if(friend1.getId() == friend2.getId()) {
+			return this.getBadRequestResponse(res, "You can only be friend of other user");
+		}
+		
 		FriendDB db = new FriendDB();
-		UserDB db_get = new UserDB();
-		ResultSet rs = db_get.getUser(user);
-		db.addFriend(idUser,idFriend);
-		if(rs != null && rs.next()) {
-			user.setName(rs.getString("name"));
-			user.setUsername(rs.getString("username"));
-			String location = "http://localhost:8080/SOS/api/user/" + idFriend;
-			return Response
-					.status(Response.Status.CREATED)
-					.entity(user)
-					.header("Location", location)
-					.header("Content-Location", location)
-					.build();
+		if(!db.checkFriends(friend1.getId(), friend2.getId())) {
+			UserDB userDB = new UserDB();
+			ResultSet rs = userDB.getUser(friend1);
+			db.addFriend(friend1.getId(),friend2.getId());
+			if(rs != null && rs.next()) {
+				friend1.setName(rs.getString("name"));
+				friend1.setUsername(rs.getString("username"));
+				String location = "http://localhost:8080/SOS/api/user/" + friend2.getId();
+				this.getCreatedResponse(res, friend1, location, "Friend relation added succesfully");
+			}
 		}
-		}
-		// Error message should be an object
-		return Response
-				.status(Response.Status.INTERNAL_SERVER_ERROR)
-				.entity("Unable to send friend request ")
-				.build();
+		// Error
+		return this.getInternalServerErrorResponse(res, "Unable to create friend relation");
+	}
 	
+	public Response removeFriend(String friend1Id,String friend2Id) throws SQLException {
+		// Res stores body response
+		HashMap<String, Object> res = new HashMap<String, Object>();
+		
+		UserResource friend1 = new UserResource(friend1Id);
+		UserResource friend2 = new UserResource(friend2Id);
+		
+		if(friend1.getId() == friend2.getId()) {
+			return this.getBadRequestResponse(res, "You can only be friend of other user");
+		}
+			
+		FriendDB db = new FriendDB();
+		if(db.checkFriends(friend1.getId(), friend2.getId())) {	
+			db.removeFriend(friend1, friend2);
+			// TODO getOkResponse doesnt allow location. I think is useless. Should ask teacher.
+			// String location = "http://localhost:8080/SOS/api/user/" + idFriend;
+			// TODO Other comment: second argument should data, what about returning an array with 2 elements with location as well
+			return this.getOkResponse(res, null, "Friend relation removed succesfully");
+		}
+	
+		// Error message should be an object
+		return this.getInternalServerErrorResponse(res, "Unable to remove friend");
 	}
 }

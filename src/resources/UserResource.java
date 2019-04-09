@@ -32,7 +32,7 @@ public class UserResource {
 		this.name = name;
 		this.username = username;
 	}
-
+	
 	@XmlAttribute(required=false)
 	public int getId() {
 		return this.userId;
@@ -50,7 +50,7 @@ public class UserResource {
 		return this.location;
 	}
 	
-	public void setId(String userId) {
+	public void setUserId(String userId) {
 		this.userId = Integer.parseInt(userId);
 	}
 	

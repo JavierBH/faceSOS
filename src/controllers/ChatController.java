@@ -2,6 +2,7 @@ package controllers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -9,45 +10,41 @@ import javax.ws.rs.core.UriInfo;
 import resources.ChatResource;
 import database.ChatDB;
 
-public class ChatController {
-	
-	private UriInfo uriInfo;
+public class ChatController extends Controller {
 	
 	public ChatController(UriInfo uriInfo) {
-		this.uriInfo = uriInfo;
+		super(uriInfo);
 	}
 	
-	public Response sendChat(
-			String senderUserId, 
-			String receiverUserId, 
-			ChatResource chat) throws SQLException {
+	public Response sendChat(ChatResource chat) throws SQLException {
 		
-		if(senderUserId.equals(receiverUserId)) {
-			return Response
-					.status(Response.Status.BAD_REQUEST)
-					.entity("User cannot send a chat to itself")
-					.build();
+		// Res stores body response
+		HashMap<String, Object> res = new HashMap<String, Object>();
+		if(chat.getContent() == null 
+				|| chat.getReceiverUserId() == 0 
+				|| chat.getSenderUserId() == 0) {
+			this.getBadRequestResponse(res, 
+					"Cannot send message without one of the following parameters: "
+					+ "senderUserId, receiverUserId or content in the body");
+		}
+			
+		if(chat.getSenderUserId() == chat.getReceiverUserId()) {
+			this.getBadRequestResponse(res, "User cannot send a chat to itself");
 		}
 		
-		chat.setSenderUserId(senderUserId);
-		chat.setReceiverUserId(receiverUserId);
-		
+		// Set data in DB
 		ChatDB db = new ChatDB();
 		ResultSet rs = db.sendChat(chat);
 
 		if(rs != null && rs.next()) {
-			return Response
-					.status(Response.Status.CREATED)
-					.entity(chat)
-					// No header in location response?? In that case, uriInfo useless
-					//.header("Location", location)
-					//.header("Content-Location", location)
-					.build();
+			// Prepare data to send back to client
+			chat.setChatId(rs.getString(1));
+			String location = this.getPath() + "/user/chat/" + chat.getChatId();
+			return this.getCreatedResponse(res, chat, location, "Chat created succesfully");
 		}
-		return Response
-				.status(Response.Status.INTERNAL_SERVER_ERROR)
-				.entity("Unable to process request")
-				.build();
+		
+		// Error
+		return this.getInternalServerErrorResponse(res, "Unable to process request");
 	}
 
 }

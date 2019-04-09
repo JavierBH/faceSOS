@@ -37,6 +37,7 @@ public class UserDB extends Conexion {
 			ps.setString(2, user.getUsername());
 			ps.executeUpdate();
 			ResultSet rs = ps.getGeneratedKeys();
+
 			return rs;
 		}
 		return null;
@@ -79,4 +80,45 @@ public class UserDB extends Conexion {
 		}
 		return null;
 	}
+	
+	public ResultSet getFriends(String name, int count, String userId) throws SQLException {
+		if(this.conn != null) {
+			
+			String query = "select faceSOS.friends.friend_id,faceSOS.users.name,faceSOS.users.username from faceSOS.users join faceSOS.friends " + 
+					"on (faceSOS.users.user_id=faceSOS.friends.friend_id) where faceSOS.friends.user_id= ? "
+					+ "union select faceSOS.friends.user_id,faceSOS.users.name,faceSOS.users.username from faceSOS.users join faceSOS.friends " + 
+					"on (faceSOS.users.user_id=faceSOS.friends.user_id) where faceSOS.friends.friend_id= ? ;";
+			
+			if (!name.equals(""))
+				query = "select faceSOS.friends.friend_id,faceSOS.users.name,faceSOS.users.username from faceSOS.users join faceSOS.friends " + 
+						"on (faceSOS.users.user_id=faceSOS.friends.friend_id) where faceSOS.friends.user_id= ? and faceSOS.users.name like ?"
+						+ "union select faceSOS.friends.user_id,faceSOS.users.name,faceSOS.users.username from faceSOS.users join faceSOS.friends " + 
+						"on (faceSOS.users.user_id=faceSOS.friends.user_id) where faceSOS.friends.friend_id= ? and faceSOS.users.name like ?;";
+			if (count != 0)	
+				query += "limit ?;";
+			PreparedStatement ps = this.conn.prepareStatement(query);
+			ps.setString(1, userId);
+			int i = 2;
+			if (!name.equals("") ) {
+				name+="%";
+				ps.setString(i, name);
+				i++;
+			}
+			ps.setString(i, userId);
+			i++;
+			if (!name.equals("")) {
+				name+="%";
+				ps.setString(i, name);
+				i++;
+			}
+			if (count != 0)
+				ps.setInt(i, count);
+				
+			ResultSet rs =ps.executeQuery();
+			return rs;
+		}
+		return null;
+	}
+	
+	
 }
