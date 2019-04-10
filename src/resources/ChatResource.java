@@ -6,8 +6,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class ChatResource {
 	private int chatId;
-	private int senderUserId;
-	private int receiverUserId;
+	private UserResource senderUser;
+	private UserResource receiverUser;
 	private String content;
 	
 	public ChatResource() {}
@@ -20,12 +20,12 @@ public class ChatResource {
 		return this.chatId;
 	}
 	
-	public int getSenderUserId() {
-		return this.senderUserId;
+	public UserResource getSenderUser() {
+		return this.senderUser;
 	}
 	
-	public int getReceiverUserId() {
-		return this.receiverUserId;
+	public UserResource getReceiverUser() {
+		return this.receiverUser;
 	}
 	
 	@XmlAttribute(required=true)
@@ -37,20 +37,20 @@ public class ChatResource {
 		this.chatId = Integer.parseInt(chatId);
 	}
 	
-	public void setSenderUserId(String senderUserId) {
-		this.senderUserId = Integer.parseInt(senderUserId);
+	public void setSenderUser(String senderUserId) {
+		this.senderUser = new UserResource(senderUserId);
 	}
 	
-	public void setSenderUserId(int senderUserId) {
-		this.senderUserId = senderUserId;
+	public void setSenderUser(int senderUserId) {
+		this.senderUser = new UserResource(senderUserId);
 	}
 	
-	public void setReceiverUserId(String receiverUserId) {
-		this.receiverUserId = Integer.parseInt(receiverUserId);
+	public void setReceiverUser(String receiverUserId) {
+		this.receiverUser = new UserResource(receiverUserId);
 	}
 	
-	public void setReceiverUserId(int receiverUserId) {
-		this.receiverUserId = receiverUserId;
+	public void setReceiverUser(int receiverUserId) {
+		this.receiverUser = new UserResource(receiverUserId);
 	}
 	
 	public void setContent(String content) {

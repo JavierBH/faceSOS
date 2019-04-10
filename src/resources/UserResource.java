@@ -21,6 +21,10 @@ public class UserResource {
 		this.userId = Integer.parseInt(userId);
 	}
 	
+	public UserResource(int userId) {
+		this.userId = userId;
+	}
+	
 	public UserResource(String userId, String name, String username) {
 		this.userId = Integer.parseInt(userId);
 		this.name = name;

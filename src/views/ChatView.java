@@ -5,6 +5,7 @@ import javax.ws.rs.Consumes;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -22,7 +23,10 @@ public class ChatView {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response sendChat(
-			ChatResource chat) throws SQLException {
-		return new ChatController(this.uriInfo).sendChat(chat);
+			ChatResource chat,
+			@QueryParam("from") int senderUserId,
+			@QueryParam("to") int receiverUserId) throws SQLException {
+		System.out.println();
+		return new ChatController(this.uriInfo).sendChat(chat, senderUserId, receiverUserId);
 	}
 }

@@ -27,23 +27,7 @@ public class UserController extends Controller {
 		
 		// Get data from DB
 		UserResource user = new UserResource(userId);
-		UserDB db = new UserDB();
-		ResultSet rs = db.getUser(user);
-		
-		if (!rs.next()) {
-			return this.getBadRequestResponse(res, "User not found");
-		}
-		
-		if(rs != null) {
-			// Prepare data to send back to client
-			user.setName(rs.getString("name"));
-			user.setUsername(rs.getString("username"));
-			return this.getOkResponse(res, user, "Data loaded succesfully");
-		}
-
-		// Error
-		//TODO: Check why this return is dead code
-		return this.getInternalServerErrorResponse(res, "There was a problem. Unable to get user information");
+		return this.getUserInformationReponse(res, user);
 	}
 	
 	
@@ -168,15 +152,22 @@ public class UserController extends Controller {
 		return this.getInternalServerErrorResponse(res, "There was a problem. Unable to get user information");
 	}
 	
-	public Response getFriends(String name,int count,String userId) throws SQLException {
+	public Response getFriends(String userId, String name, int limitTo) throws SQLException {
 		//UserResource user = new UserResource(userId);
 		HashMap <String,Object> res = new HashMap <String,Object>();
 		
+		// Check that userId exists
+		UserResource user = new UserResource(userId);
+		Response userInformationResponse = this.getUserInformationReponse(res, user);
+		if(userInformationResponse.getStatus() != 200) {
+			return userInformationResponse;
+		}
+			
 		// Get data from DB
 		UserDB db = new UserDB();
-		ResultSet rs = db.getFriends(name,count,userId);
+		ResultSet rs = db.getFriends(user, limitTo, userId);
 		
-		try {
+		if(rs != null) {
 			ArrayList<UserResource> friends = new ArrayList<UserResource>();
 			while(rs.next()) {
 				friends.add(new UserResource(
@@ -184,14 +175,15 @@ public class UserController extends Controller {
 						rs.getString("name"),
 						rs.getString("username")));
 			}
+			
 			// Array with users
 			HashMap<String, Object> data = new HashMap<String, Object>();
 			data.put("friends", friends);
 			data.put("n", friends.size());
 			return this.getOkResponse(res, data, "Data loaded succesfully");
 		}
-		catch(SQLException e){
-			return this.getInternalServerErrorResponse(res, "Unable to get friends information");
-		}
+		
+		// Error
+		return this.getInternalServerErrorResponse(res, "Unable to get friends information");
 	}
 }

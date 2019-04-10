@@ -81,7 +81,7 @@ public class UserDB extends Conexion {
 		return null;
 	}
 	
-	public ResultSet getFriends(String name, int count, String userId) throws SQLException {
+	public ResultSet getFriends(UserResource user, int count, String userId) throws SQLException {
 		if(this.conn != null) {
 			
 			String query = "select faceSOS.friends.friend_id,faceSOS.users.name,faceSOS.users.username from faceSOS.users join faceSOS.friends " + 
@@ -89,7 +89,7 @@ public class UserDB extends Conexion {
 					+ "union select faceSOS.friends.user_id,faceSOS.users.name,faceSOS.users.username from faceSOS.users join faceSOS.friends " + 
 					"on (faceSOS.users.user_id=faceSOS.friends.user_id) where faceSOS.friends.friend_id= ? ;";
 			
-			if (!name.equals(""))
+			if (!user.getName().equals(""))
 				query = "select faceSOS.friends.friend_id,faceSOS.users.name,faceSOS.users.username from faceSOS.users join faceSOS.friends " + 
 						"on (faceSOS.users.user_id=faceSOS.friends.friend_id) where faceSOS.friends.user_id= ? and faceSOS.users.name like ?"
 						+ "union select faceSOS.friends.user_id,faceSOS.users.name,faceSOS.users.username from faceSOS.users join faceSOS.friends " + 
@@ -99,8 +99,9 @@ public class UserDB extends Conexion {
 			PreparedStatement ps = this.conn.prepareStatement(query);
 			ps.setString(1, userId);
 			int i = 2;
-			if (!name.equals("") ) {
-				name+="%";
+			String name = user.getName();
+			if (!user.getName().equals("") ) {
+				name += "%";
 				ps.setString(i, name);
 				i++;
 			}

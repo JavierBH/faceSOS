@@ -62,10 +62,11 @@ public class UserView {
 	
 	@GET
 	@Path("{userId}/friends")
-	public Response getFriends(@QueryParam("name") @DefaultValue("") String name,
-			@QueryParam("count") @DefaultValue("0") String count,
-			@PathParam("userId") String userId) throws SQLException {
-		int cont=Integer.parseInt(count);
-		return new UserController(this.uriInfo).getFriends(name,cont,userId);
+	public Response getFriends(
+			@PathParam("userId") String userId,
+			@QueryParam("name") @DefaultValue("") String name,
+			@QueryParam("limit-to") int limitTo
+			) throws SQLException {
+		return new UserController(this.uriInfo).getFriends(userId, name, limitTo);
 	}
 }

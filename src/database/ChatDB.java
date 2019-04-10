@@ -19,8 +19,8 @@ public class ChatDB extends Conexion{
 					+ "(sender_user_id, receiver_user_id, content) "
 					+ "VALUE (?,?,?)";
 			PreparedStatement ps = this.conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-			ps.setInt(1, chat.getSenderUserId());
-			ps.setInt(2, chat.getReceiverUserId());
+			ps.setInt(1, chat.getSenderUser().getId());
+			ps.setInt(2, chat.getReceiverUser().getId());
 			ps.setString(3, chat.getContent());
 			ps.executeUpdate();
 			ResultSet rs = ps.getGeneratedKeys();
