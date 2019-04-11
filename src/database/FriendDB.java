@@ -35,8 +35,8 @@ public class FriendDB extends Conexion{
 		ps.setInt(1, idUser);
 		ps.setInt(2, idFriend);
 		ps.executeUpdate();
-		
 	}
+	
 	public void removeFriend(UserResource friend1, UserResource friend2) throws SQLException {
 		String query = "DELETE FROM `faceSOS`.`friends` WHERE (user_id= ? AND friend_id=?) OR (user_id= ? and friend_id=?);";
 		PreparedStatement ps = this.conn.prepareStatement(query);

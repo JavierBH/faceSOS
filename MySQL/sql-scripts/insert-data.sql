@@ -1,17 +1,17 @@
 use faceSOS;
 
 INSERT INTO users
-    (name, username) VALUE
-    ('Alejandro', 'alexente');
+    (name, username, email) VALUE
+    ('Alejandro', 'alexente', 'alexente@email.com');
 
 INSERT INTO users
-    (name, username) VALUE
-    ('Raúl', 'rcarbjsa');
+    (name, username, email) VALUE
+    ('Raúl', 'rcarbjsa', 'rcarbjsa@email.com');
 
 INSERT INTO users
-    (name, username) VALUE
-    ('Max', 'onmax');
+    (name, username, email) VALUE
+    ('Max', 'onmax', 'onmax@email.com');
 
 INSERT INTO users
-    (name, username) VALUE
-    ('Gema', 'gemawari');
+    (name, username, email) VALUE
+    ('Gema', 'gemawari', 'gemawari@email.com');

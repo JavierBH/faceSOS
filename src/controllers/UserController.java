@@ -71,14 +71,23 @@ public class UserController extends Controller {
 		// Res stores body response
 		HashMap<String, Object> res = new HashMap<String, Object>();
 		
-		// Edit data in DB
+		user.setUsername(null);
 		user.setUserId(userId);
+		
+		// Check that user exists
+		Response userInformation = this.getUserInformationReponse(res, user);
+		if(userInformation.getStatus() != 200) {
+			return userInformation;
+		}
+		
+		// Edit data in DB
 		UserDB db = new UserDB();
 		int rowsAffected = db.editUser(user);
 		
 		if (rowsAffected > 0) {
 			// Prepare data to send back to client
-			user.setUsername(null);
+			UserResource fullUserInfo = (UserResource)((HashMap<String, Object>)userInformation.getEntity()).get("data");
+			user.join(fullUserInfo);
 			String location = this.getPath() + "/user/" + user.getId();
 			return this.getCreatedResponse(res, user, location, "Data updated succesfully");
 		} else if(rowsAffected == 0) {
@@ -134,15 +143,18 @@ public class UserController extends Controller {
 	            UserResource user = new UserResource(
 	            		rs.getInt("user_id"),
 	            		rs.getString("name"),
-	            		rs.getString("username"));
-	            user.setLocation(this.getPath() + "/" + user.getId());
+	            		rs.getString("username"),
+	            		rs.getString("email"),
+	            		rs.getString("biography"),
+	            		this.getPath(),
+	            		rs.getTimestamp("created_at"));
 	            users.add(user);
 	        }
 			
 			// Array with users
 			HashMap<String, Object> data = new HashMap<String, Object>();
 			data.put("users", users);
-			data.put("n", users.size());
+			data.put("nUsers", users.size());
 
 			// Prepare data to send back to client
 			return this.getOkResponse(res, data, "Data loaded succesfully");
@@ -179,7 +191,7 @@ public class UserController extends Controller {
 			// Array with users
 			HashMap<String, Object> data = new HashMap<String, Object>();
 			data.put("friends", friends);
-			data.put("n", friends.size());
+			data.put("nFriends", friends.size());
 			return this.getOkResponse(res, data, "Data loaded succesfully");
 		}
 		

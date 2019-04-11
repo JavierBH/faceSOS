@@ -26,7 +26,6 @@ public class ChatView {
 			ChatResource chat,
 			@QueryParam("from") int senderUserId,
 			@QueryParam("to") int receiverUserId) throws SQLException {
-		System.out.println();
 		return new ChatController(this.uriInfo).sendChat(chat, senderUserId, receiverUserId);
 	}
 }

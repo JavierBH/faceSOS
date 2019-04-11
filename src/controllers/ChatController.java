@@ -34,7 +34,7 @@ public class ChatController extends Controller {
 			this.getBadRequestResponse(res, "User cannot send a chat to itself");
 		}
 		
-		// Check that both users exists
+		// Check that both users exist
 		Response senderUserInformation = this.getUserInformationReponse(res, chat.getSenderUser());
 		if(senderUserInformation.getStatus() != 200) {
 			return senderUserInformation;

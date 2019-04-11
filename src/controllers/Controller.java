@@ -1,6 +1,5 @@
 package controllers;
 
-import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -23,8 +22,8 @@ public class Controller {
 		this.uriInfo = uriInfo;
 	}
 	
-	public URI getPath() {
-		return this.uriInfo.getAbsolutePath();
+	public String getPath() {
+		return this.uriInfo.getAbsolutePath().toString();
 	}
 	
 	public Response getUserInformationReponse(HashMap<String, Object> res, UserResource user) throws SQLException {
@@ -38,6 +37,8 @@ public class Controller {
 			// Prepare data to send back to client
 			user.setName(rs.getString("name"));
 			user.setUsername(rs.getString("username"));
+			user.setEmail(rs.getString("email"));
+			user.setCreatedAt(rs.getTimestamp("created_at"));
 			return this.getOkResponse(res, user, "Data loaded succesfully");
 		}
 	}

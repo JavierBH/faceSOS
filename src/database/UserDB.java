@@ -31,10 +31,12 @@ public class UserDB extends Conexion {
 	public ResultSet createUser(UserResource user) throws SQLException {
 		// TODO: unique username value. If already exists, then error
 		if(this.conn != null) {
-			String query = "INSERT INTO `faceSOS`.`users`(name,username) VALUE (?,?);";
+			String query = "INSERT INTO `faceSOS`.`users`(name,username,email,biography) VALUE (?,?,?,?);";
 			PreparedStatement ps = this.conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 			ps.setString(1, user.getName());
 			ps.setString(2, user.getUsername());
+			ps.setString(3, user.getEmail());
+			ps.setString(4, user.getBiography());
 			ps.executeUpdate();
 			ResultSet rs = ps.getGeneratedKeys();
 

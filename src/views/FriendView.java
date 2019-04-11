@@ -19,6 +19,8 @@ import resources.ChatResource;
 
 @Path("friend/{userId}")
 public class FriendView {
+	// I think is better to join UserView and FriendView. 
+	// At the end, they are the same thing, an UserResource
 	
 	@Context
 	private UriInfo uriInfo;

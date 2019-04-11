@@ -20,8 +20,19 @@ public class FriendController extends Controller{
 		// Res stores body response
 		HashMap<String, Object> res = new HashMap<String, Object>();
 		
+		
+		// Check that friend1Id and friend2Id exist
 		UserResource friend1 = new UserResource(friend1Id);
+		Response friend1InformationResponse = this.getUserInformationReponse(res, friend1);
+		if(friend1InformationResponse.getStatus() != 200) {
+			return friend1InformationResponse;
+		}
+		
 		UserResource friend2 = new UserResource(friend2Id);
+		Response friend2InformationResponse = this.getUserInformationReponse(res, friend1);
+		if(friend2InformationResponse.getStatus() != 200) {
+			return friend2InformationResponse;
+		}
 		
 		if(friend1.getId() == friend2.getId()) {
 			return this.getBadRequestResponse(res, "You can only be friend of other user");
@@ -35,7 +46,7 @@ public class FriendController extends Controller{
 			if(rs != null && rs.next()) {
 				friend1.setName(rs.getString("name"));
 				friend1.setUsername(rs.getString("username"));
-				String location = "http://localhost:8080/SOS/api/user/" + friend2.getId();
+				String location = this.getPath() + "/user/" + friend2.getId();
 				this.getCreatedResponse(res, friend1, location, "Friend relation added succesfully");
 			}
 		}

@@ -3,7 +3,11 @@ CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL,
   `username` varchar(32) NOT NULL,
-  PRIMARY KEY (`user_id`)
+  `email` varchar(100) NOT NULL,
+  `biography` text,
+  `created_at` TIMESTAMP NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (`user_id`),
+  CONSTRAINT user UNIQUE (`user_id`, `username`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
 
 
@@ -20,12 +24,11 @@ CREATE TABLE IF NOT EXISTS `chats` (
 
 
 CREATE TABLE IF NOT EXISTS `friends` (
-  `user_id` int(10) unsigned NOT NULL,
-  `friend_id` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`user_id`,`friend_id`),
-  KEY `FK_FRIENDS_2` (`friend_id`),
-  CONSTRAINT `FK_FRIENDS_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `FK_FRIENDS_2` FOREIGN KEY (`friend_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  UserID1 INT NOT NULL REFERENCES users(user_id),
+     UserID2 INT NOT NULL REFERENCES users(user_id),
+     CONSTRAINT CheckOneWay CHECK (UserID1 < UserID2),
+     CONSTRAINT PK_Friends_UserID1_UserID2 PRIMARY KEY (UserID1, UserID2),
+     CONSTRAINT UQ_Friends_UserID2_UserID1 UNIQUE (UserID2, UserID1)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
