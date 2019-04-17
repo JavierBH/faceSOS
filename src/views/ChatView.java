@@ -16,15 +16,13 @@ import resources.ChatResource;
 
 @Path("/user/chat")
 public class ChatView {
-	
+
 	@Context
 	private UriInfo uriInfo;
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response sendChat(
-			ChatResource chat,
-			@QueryParam("from") int senderUserId,
+	public Response sendChat(ChatResource chat, @QueryParam("from") int senderUserId,
 			@QueryParam("to") int receiverUserId) throws SQLException {
 		return new ChatController(this.uriInfo).sendChat(chat, senderUserId, receiverUserId);
 	}

@@ -12,15 +12,15 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.naming.NamingContext;
 
 public class Conexion {
-	@Context
-	protected UriInfo uriInfo;
 
 	protected DataSource ds;
 	protected Connection conn;
-	
-	// TODO In views, add try catch to return INTERNAL_ERROR_SERVER in case of error without exception
-	// for example: Tables are not created in server and user make a request, it returns an error from Tomcat
-	
+
+	// TODO In views, add try catch to return INTERNAL_ERROR_SERVER in case of error
+	// without exception
+	// for example: Tables are not created in server and user make a request, it
+	// returns an error from Tomcat
+
 	public Conexion() {
 		try {
 			InitialContext ctx = new InitialContext();
@@ -33,5 +33,4 @@ public class Conexion {
 			e.printStackTrace();
 		}
 	}
-
 }

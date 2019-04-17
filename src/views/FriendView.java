@@ -19,30 +19,25 @@ import resources.ChatResource;
 
 @Path("friend/{userId}")
 public class FriendView {
-	// I think is better to join UserView and FriendView. 
+	// I think is better to join UserView and FriendView.
 	// At the end, they are the same thing, an UserResource
-	
-	@Context
-	private UriInfo uriInfo;
 
-	
-	//Add friend
+	// Add friend
 	@PUT
 	@Path("/add/{friendId}")
-	//@Produces(MediaType.APPLICATION_JSON)
-	public Response addFriend(
-			@PathParam("userId")String userId,
-			@PathParam("friendId") String friendId) 
-					throws SQLException {
-		return new FriendController(uriInfo).addFriend(userId,friendId);
+	// @Produces(MediaType.APPLICATION_JSON)
+	public Response addFriend(@PathParam("userId") String userId, @PathParam("friendId") String friendId)
+			throws SQLException {
+		return new FriendController().addFriend(userId, friendId);
 	}
-	
-	//Remove friend
+
+	// Remove friend
 	@PUT
-	@Path("/remove/{idFriend}")
-	//@Produces(MediaType.APPLICATION_JSON)
-	public Response removeFriend(@PathParam("idUser")String idUser, @PathParam("idFriend") String idFriend) throws SQLException {
-		return new FriendController(uriInfo).removeFriend(idUser,idFriend);
+	@Path("/remove/{friendId}")
+	// @Produces(MediaType.APPLICATION_JSON)
+	public Response removeFriend(@PathParam("userId") String idUser, @PathParam("friendId") String idFriend)
+			throws SQLException {
+		return new FriendController().removeFriend(idUser, idFriend);
 	}
 
 }

@@ -1,6 +1,6 @@
 package views;
-import java.sql.SQLException;
 
+import java.sql.SQLException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -21,52 +21,46 @@ import resources.UserResource;
 
 @Path("/user")
 public class UserView {
-	
+
 	@Context
 	private UriInfo uriInfo;
-	
+
 	@GET
 	@Path("/{userId}")
-	public Response getUser(
-			@PathParam("userId") String userId) throws SQLException {
+	public Response getUser(@PathParam("userId") String userId) throws SQLException {
 		return new UserController(this.uriInfo).getUser(userId);
 	}
-	
+
 	@GET
-	public Response getUsers(
+	public Response getUsers(@QueryParam("limit-to") @DefaultValue(-1) int limitTo, @QueryParam("page") int page,
 			@QueryParam("name") @DefaultValue("") String name) throws SQLException {
-		return new UserController(this.uriInfo).getUsers(name);
+		return new UserController(this.uriInfo).getUsers(name, limitTo, page);
 	}
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createUser(UserResource user) throws SQLException {
 		return new UserController(this.uriInfo).createUser(user);
 	}
-	
+
 	@PUT
 	@Path("/{userId}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response editUser(
-			@PathParam("userId") String userId,
-			UserResource user) throws SQLException {
+	public Response editUser(@PathParam("userId") String userId, UserResource user) throws SQLException {
 		return new UserController(this.uriInfo).editUser(userId, user);
 	}
-	
+
 	@DELETE
 	@Path("/{userId}")
-	public Response removeUser(
-			@PathParam("userId") String userId) throws SQLException {
+	public Response removeUser(@PathParam("userId") String userId) throws SQLException {
 		return new UserController(this.uriInfo).removeUser(userId);
 	}
-	
+
 	@GET
 	@Path("{userId}/friends")
-	public Response getFriends(
-			@PathParam("userId") String userId,
-			@QueryParam("name") @DefaultValue("") String name,
-			@QueryParam("limit-to") int limitTo
-			) throws SQLException {
-		return new UserController(this.uriInfo).getFriends(userId, name, limitTo);
+	public Response getFriends(@PathParam("userId") String userId, @QueryParam("page") int page,
+			@QueryParam("name") @DefaultValue("") String name, @QueryParam("limit-to") @DefaultValue(-1) int limitTo)
+			throws SQLException {
+		return new UserController(this.uriInfo).getFriends(userId, name, limitTo, page);
 	}
 }

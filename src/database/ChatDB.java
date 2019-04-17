@@ -23,8 +23,7 @@ public class ChatDB extends Conexion{
 			ps.setInt(2, chat.getReceiverUser().getId());
 			ps.setString(3, chat.getContent());
 			ps.executeUpdate();
-			ResultSet rs = ps.getGeneratedKeys();
-			return rs;
+			return ps.getGeneratedKeys();
 		}
 		return null;
 	}
