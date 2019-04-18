@@ -3,7 +3,6 @@ package views;
 import java.sql.SQLException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -14,11 +13,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
 import controllers.PostController;
 import resources.PostResource;
 
-@Path("/user/{user_id}/post")
+@Path("/user/{userId}/post")
 public class PostView {
 
 	@Context
@@ -26,36 +24,36 @@ public class PostView {
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response postMessage(@PathParam("user_id") String userId, PostResource post) throws SQLException {
-		return new PostController(this.uriInfo).postMessage(post, userId);
+	public Response createPost(@PathParam("userId") String userId, PostResource post) throws SQLException {
+		return new PostController(this.uriInfo).createPost(post, userId);
 	}
 
 	@Path("/{postId}")
 	@DELETE
-	public Response deleteMessage(@PathParam("user_id") String userId, @PathParam("post_id") String postId)
+	public Response deletePost(@PathParam("userId") String userId, @PathParam("postId") String postId)
 			throws SQLException {
-		return new PostController(this.uriInfo).deleteMessage(userId, postId);
+		return new PostController(this.uriInfo).deletePost(userId, postId);
 	}
 
 	@Path("/{postId}")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response editMessage(@PathParam("user_id") String userId, @PathParam("postId") String postId,
+	public Response editPost(@PathParam("userId") String userId, @PathParam("postId") String postId,
 			PostResource post) throws SQLException {
-		return new PostController(this.uriInfo).editMessage(post, postId, userId);
+		return new PostController(this.uriInfo).editPost(post, postId, userId);
 	}
 
 	@GET
-	public Response getMessage(@QueryParam("limitTo") @DefaultValue("") String limitTo,
-			@PathParam("user_id") String userId) throws SQLException {
-		return new PostController(this.uriInfo).getMessage(userId, limitTo);
+	public Response getPost(@QueryParam("limit-to") int limitTo,
+			@PathParam("userId") String userId) throws SQLException {
+		return new PostController(this.uriInfo).getPost(userId, limitTo);
 	}
 
 	@Path("/friends")
 	@GET
-	public Response getMessageFriends(@QueryParam("content") @DefaultValue("") String content,
-			@PathParam("user_id") String userId) throws SQLException {
-		return new PostController(this.uriInfo).getMessageFriends(userId, content);
+	public Response getFriendsPosts(@QueryParam("content") String content,
+			@PathParam("userId") String userId) throws SQLException {
+		return new PostController(this.uriInfo).getFriendsPosts(userId, content);
 	}
 
 }

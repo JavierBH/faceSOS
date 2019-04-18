@@ -1,7 +1,6 @@
 package views;
 
 import java.sql.SQLException;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -15,13 +14,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
+import controllers.FriendController;
 import controllers.UserController;
 import resources.UserResource;
 
 @Path("/user")
 public class UserView {
-
+  
 	@Context
 	private UriInfo uriInfo;
 
@@ -31,9 +30,11 @@ public class UserView {
 		return new UserController(this.uriInfo).getUser(userId);
 	}
 
+	// TODO: Remove default Value in String name and check only with null
 	@GET
-	public Response getUsers(@QueryParam("limit-to") @DefaultValue(-1) int limitTo, @QueryParam("page") int page,
-			@QueryParam("name") @DefaultValue("") String name) throws SQLException {
+	public Response getUsers(@QueryParam("limit-to") int limitTo, 
+			@QueryParam("page") @DefaultValue("1") int page, @QueryParam("name") String name) 
+					throws SQLException {
 		return new UserController(this.uriInfo).getUsers(name, limitTo, page);
 	}
 
@@ -58,9 +59,27 @@ public class UserView {
 
 	@GET
 	@Path("{userId}/friends")
-	public Response getFriends(@PathParam("userId") String userId, @QueryParam("page") int page,
-			@QueryParam("name") @DefaultValue("") String name, @QueryParam("limit-to") @DefaultValue(-1) int limitTo)
+	public Response getFriends(@PathParam("userId") String userId, @QueryParam("page") @DefaultValue("1") int page,
+			@QueryParam("name") String name, @QueryParam("limit-to") int limitTo)
 			throws SQLException {
-		return new UserController(this.uriInfo).getFriends(userId, name, limitTo, page);
+		return new FriendController(this.uriInfo).getFriends(userId, name, limitTo, page);
 	}
+	
+	// Add friend
+    @POST
+    @Path("/{userId}/friends/{friendId}")
+    // @Produces(MediaType.APPLICATION_JSON)
+    public Response addFriend(@PathParam("userId") String userId, @PathParam("friendId") String friendId)
+            throws SQLException {
+        return new FriendController(this.uriInfo).addFriend(userId, friendId);
+    }
+
+    // Remove friend
+    @DELETE
+    @Path("/{userId}/friends/{friendId}")
+    // @Produces(MediaType.APPLICATION_JSON)
+    public Response removeFriend(@PathParam("userId") String idUser, @PathParam("friendId") String idFriend)
+            throws SQLException {
+        return new FriendController(this.uriInfo).removeFriend(idUser, idFriend);
+    }
 }
