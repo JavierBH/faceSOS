@@ -19,10 +19,10 @@ public class PostController extends Controller {
 	public Response createPost(PostResource post, String userId) throws SQLException {
 		// Check body data
 		if (post.getContent() == null) {
-			this.getBadRequestResponse(
+			this.getResponse(Response.Status.BAD_REQUEST,
 					"Unable to post message: Content is not defined in the body of the post is undefined.");
 		} else if (post.getContent().equals("")) {
-			this.getBadRequestResponse("Unable to post message: Content is of the post is empty.");
+			this.getResponse(Response.Status.BAD_REQUEST, "Unable to post message: Content is of the post is empty.");
 		}
 		
 		
@@ -31,24 +31,23 @@ public class PostController extends Controller {
         if(userInformation.getStatus() != 200) {
           return userInformation;
         }
-        System.out.println("HOLA");
+        
         user = (UserResource) ((HashMap<String, Object>) userInformation.getEntity()).get("data");
-		
 		post.setUser(user);
 
 		// Set data in DB
 		PostDB db = new PostDB();
 		ResultSet rs = db.createPost(post);
 
-		if (rs.next()) {
-			// Prepare data to send back to client
-			post.setPostId(rs.getString(1));
-			String location = this.getPath() + "/post/" + post.getPostId();
-			return this.getCreatedResponse(post, location, "Post created succesfully");
+		if (!rs.next()) {
+	        return this.getResponse(Response.Status.INTERNAL_SERVER_ERROR, "There was an error. Unable to create a post");
 		}
-
-		// Error
-		return this.getInternalServerErrorResponse("There was an error. Unable to create a post");
+		
+		// Prepare data to send back to client
+		// TODO change 1 to "post_id"
+		post.setPostId(rs.getString(1));
+		String location = this.getPath() + "/post/" + post.getPostId();
+		return this.getResponse(Response.Status.CREATED, "Post created succesfully", post, location);		
 	}
 
 	public Response deletePost(String userId, String postId) throws SQLException {
@@ -67,13 +66,10 @@ public class PostController extends Controller {
 		PostDB db = new PostDB();
 		int affectedRows = db.deletePost(post);
 
-		if (affectedRows > 0) {
-			// Prepare data to send back to client
-			return this.getOkResponse(post, "Post deleted succesfully");
+		if (affectedRows <= 0) {
+		    return this.getResponse(Response.Status.BAD_REQUEST, "There was an error. Unable to delete message");
 		}
-
-		// Error
-		return this.getInternalServerErrorResponse("There was an error. Unable to delete message");
+        return this.getResponse(Response.Status.OK, "Post deleted succesfully", post);
 	}
 
 	public Response editPost(PostResource post, String postId, String userId) throws SQLException {
@@ -91,15 +87,16 @@ public class PostController extends Controller {
 		// Set data in DB
 		PostDB db = new PostDB();
 		int affectedRows = db.editPost(post);
-
-		if (affectedRows > 0) {
-			// Prepare data to send back to client
-			String location = this.getPath() + "/post/" + postId;
-			return this.getCreatedResponse(post, location, "Post updated succesfully");
+		
+		// TODO: Check if <= is the correct way to handle the error
+		if (affectedRows <= 0) {
+	        return this.getResponse(Response.Status.INTERNAL_SERVER_ERROR, "There was an error. Unable to edit message");
 		}
-
-		// Error
-		return this.getInternalServerErrorResponse("There was an error. Unable to edit message");
+		
+		// Prepare data to send back to client
+        String location = this.getPath() + "/post/" + postId;
+        // TODO check if 200 status for this operation is the best option, maybe other 20X?
+        return this.getResponse(Response.Status.OK, "Post updated succesfully", post, location);
 	}
 
 	public Response getPosts(String userId, int limitTo, int page) throws SQLException {
@@ -118,7 +115,7 @@ public class PostController extends Controller {
 		
 		if (rs == null) {
 		    // Error
-	        return this.getInternalServerErrorResponse("There was an error. Unable to get post");
+	        return this.getResponse(Response.Status.INTERNAL_SERVER_ERROR, "There was an error. Unable to get post");
 		}
 		
 		HashMap<String, Object> data = new HashMap<String, Object>();
@@ -129,9 +126,8 @@ public class PostController extends Controller {
 		
 		data.put("posts", posts);
 		data.put("user", user);
-		System.out.println(limitTo + " " + posts.size());
 		data.put("pagination", this.getPagination(null, page, posts.size() == limitTo));
-		return this.getOkResponse(data, "Post loaded succesfully");
+		return this.getResponse(Response.Status.OK, "Post loaded succesfully", data);
 	}
 
 	public Response getFriendsPosts(String userId, String content) throws SQLException {		
@@ -145,20 +141,20 @@ public class PostController extends Controller {
         
         PostDB db = new PostDB();
 		ResultSet rs = db.getPostFriends(user, content);
-		if (rs != null) {
-		    HashMap<String, Object> data = new HashMap<String, Object>();
-			// Array with posts
-			ArrayList<PostResource> posts = new ArrayList<PostResource>();
-			while (rs.next())
-				posts.add(new PostResource(rs, this.getBaseUri()));
-            user = (UserResource) ((HashMap<String, Object>) userInformation.getEntity()).get("data");
-            data.put("user", user);
-            data.put("posts", posts);
-            data.put("nposts", posts.size());
-			return this.getOkResponse(posts, "Data loaded succesfully");
+		
+		if (rs == null) {
+		  return this.getResponse(Response.Status.INTERNAL_SERVER_ERROR, "Unable to get friends information");
 		}
-
-		// Error
-		return this.getInternalServerErrorResponse("Unable to get friends information");
+		
+		HashMap<String, Object> data = new HashMap<String, Object>();
+        // Array with posts
+        ArrayList<PostResource> posts = new ArrayList<PostResource>();
+        while (rs.next())
+            posts.add(new PostResource(rs, this.getBaseUri()));
+        user = (UserResource) ((HashMap<String, Object>) userInformation.getEntity()).get("data");
+        data.put("user", user);
+        data.put("posts", posts);
+        data.put("nposts", posts.size());
+        return this.getResponse(Response.Status.OK, "Data loaded succesfully", posts);
 	}
 }

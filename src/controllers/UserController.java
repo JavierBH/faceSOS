@@ -30,25 +30,26 @@ public class UserController extends Controller {
 	public Response createUser(UserResource user) throws SQLException {
 		// Check body data
 		if (user.getName() == null || user.getUsername() == null || user.getEmail() == null) {
-			return this.getBadRequestResponse("Unable to create user. "
+			return this.getResponse(Response.Status.BAD_REQUEST, "Unable to create user. "
 					+ "One or more of the following fields are empty: user, username or/and email");
 		}
-
+		// TODO CHECK email with regex
+		// Ban some chars for username??
+		
 		// Set data in DB
 		UserDB db = new UserDB();
 		ResultSet rs = db.createUser(user);
-
-		if (rs.next()) {
-			// Prepare data to send back to client
-
-			// TODO: I would like to change 1 to "user_id". But #doesntWork
-			user.setUserId(rs.getString(1));
-			String location = this.getPath() + "/user/" + user.getId();
-			return this.getCreatedResponse(user, location, "User created succesfully");
+		
+		if(!rs.next()) {
+		    // Error
+	        return this.getResponse(Response.Status.INTERNAL_SERVER_ERROR, "There was an error. Unable to create user");
 		}
-
-		// Error
-		return this.getInternalServerErrorResponse("There was an error. Unable to create user");
+		
+		// Prepare data to send back to client
+		// TODO: I would like to change 1 to "user_id". But #doesntWork
+		user.setUserId(rs.getString(1));
+		String location = this.getPath() + "/user/" + user.getId();
+		return this.getResponse(Response.Status.CREATED, "User created succesfully", user, location);
 	}
 
 	/*
@@ -64,24 +65,24 @@ public class UserController extends Controller {
 		if (userInformation.getStatus() != 200) {
 			return userInformation;
 		}
-
+		// TODO CHECK email with regex
+		
 		// Edit data in DB
 		UserDB db = new UserDB();
 		int rowsAffected = db.editUser(user);
-
-		if (rowsAffected > 0) {
-			// Prepare data to send back to client
-			UserResource fullUserInfo = (UserResource) ((HashMap<String, Object>) userInformation.getEntity()).get("data");
-			user.join(fullUserInfo);
-			String location = this.getPath() + "/user/" + user.getId();
-			return this.getCreatedResponse(user, location, "Data updated succesfully");
+		
+		if (rowsAffected < 0) {
+		  return this.getResponse(Response.Status.INTERNAL_SERVER_ERROR, "There was an error. Unable to update user");
 		} else if (rowsAffected == 0) {
-			// User doesn't exist so we create it
-			return this.createUser(user);
+          // User doesn't exist so we create it
+          return this.createUser(user);
 		}
-
-		// Error
-		return this.getInternalServerErrorResponse("There was an error. Unable to update user");
+		
+		// Prepare data to send back to client
+		UserResource fullUserInfo = (UserResource) ((HashMap<String, Object>) userInformation.getEntity()).get("data");
+		user.join(fullUserInfo);
+		String location = this.getPath() + "/user/" + user.getId();
+		return this.getResponse(Response.Status.OK, "Data updated succesfully", user, location);
 	}
 
 	/*
@@ -93,16 +94,15 @@ public class UserController extends Controller {
 		UserDB db = new UserDB();
 		int rowsAffected = db.removeUser(user);
 
-		if (rowsAffected > 0) {
-			// Prepare data to send back to client
-			return this.getOkResponse(user, "User removed succesfully");
+		if (rowsAffected < 0) {// Error
+	        return this.getResponse(Response.Status.INTERNAL_SERVER_ERROR, "There was an error. Unable to remove user");
 		} else if (rowsAffected == 0) {
 			// User doesn't exist so we return bad request
-			return this.getBadRequestResponse("User does not exist");
+			return this.getResponse(Response.Status.BAD_REQUEST, "User does not exist");
 		}
 
-		// Error
-		return this.getInternalServerErrorResponse("There was an error. Unable to remove user");
+        // Prepare data to send back to client
+        return this.getResponse(Response.Status.OK, "User removed succesfully", user);
 	}
 
 	/*
@@ -113,23 +113,22 @@ public class UserController extends Controller {
 		UserDB db = new UserDB();
 		ResultSet rs = db.getUsers(name, this.getElementsPage(limitTo), page - 1);
 
-		if (rs != null) {
-			// Array with users
-			ArrayList<UserResource> users = new ArrayList<UserResource>();
-			while (rs.next())
-			    users.add(new UserResource(rs.getInt("user_id"), rs, this.getBaseUri()));
-			
-			// Array with users
-			HashMap<String, Object> data = new HashMap<String, Object>();
-			data.put("users", users);
-			data.put("nUsers", users.size());
-			data.put("pagination", this.getPagination(name, page, users.size() == limitTo));
-
-			// Prepare data to send back to client
-			return this.getOkResponse(data, "Data loaded succesfully");
+		if (rs == null) {
+	        return this.getResponse(Response.Status.INTERNAL_SERVER_ERROR, "There was a problem. Unable to get user information");
 		}
+		
+		// Array with users
+		ArrayList<UserResource> users = new ArrayList<UserResource>();
+		while (rs.next())
+		    users.add(new UserResource(rs.getInt("user_id"), rs, this.getBaseUri()));
+			
+		// Array with users
+		HashMap<String, Object> data = new HashMap<String, Object>();
+		data.put("users", users);
+		data.put("nUsers", users.size());
+		data.put("pagination", this.getPagination(name, page, users.size() == limitTo));
 
-		// Error
-		return this.getInternalServerErrorResponse("There was a problem. Unable to get user information");
+		// Prepare data to send back to client
+		return this.getResponse(Response.Status.OK, "Data loaded succesfully", data);
 	}
 }

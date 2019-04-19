@@ -20,6 +20,7 @@ public class UserResource {
 	// here
 	private String friendsLocation;
 	private Timestamp createdAt;
+	private Timestamp updatedAt;
 
 	public UserResource() {
 	}
@@ -38,7 +39,7 @@ public class UserResource {
     }
 
 	public UserResource(int userId, String name, String username, String email, String biography, String location,
-			Timestamp createdAt) {
+			Timestamp createdAt,Timestamp updatedAt) {
 		this.userId = userId;
 		this.name = name;
 		this.username = username;
@@ -47,6 +48,7 @@ public class UserResource {
 		this.location = location + "/" + this.getId();
 		this.friendsLocation = this.location + "/friends";
 		this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
 	}
 	
 	public UserResource(int id, ResultSet rs, String domain) throws SQLException {
@@ -58,6 +60,7 @@ public class UserResource {
       this.location = domain + "user/" + this.getId();
       this.friendsLocation = this.location + "/friends";
       this.createdAt = rs.getTimestamp("created_at");
+      this.updatedAt = rs.getTimestamp("updated_at");
 	}
 
 	@XmlAttribute(required = false)
@@ -92,6 +95,10 @@ public class UserResource {
 	public Timestamp getCreatedAt() {
 		return this.createdAt;
 	}
+	
+	public Timestamp getUpdatedAt() {
+      return this.updatedAt;
+  }
 
 	public void setUserId(String userId) {
 		this.userId = Integer.parseInt(userId);
@@ -124,6 +131,10 @@ public class UserResource {
 	public void setCreatedAt(Timestamp createdAt) {
 		this.createdAt = createdAt;
 	}
+	
+	public void seUpdatedAt(Timestamp updatedAt) {
+      this.updatedAt = updatedAt;
+    }
 
 	/*
 	 * Join two different objects.

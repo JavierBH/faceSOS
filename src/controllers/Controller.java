@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import database.UserDB;
 import resources.UserResource;
@@ -39,9 +41,9 @@ public class Controller {
 		UserDB db = new UserDB();
 		ResultSet rs = db.getUser(user);
 		if (rs == null) {
-			return this.getInternalServerErrorResponse("There was a problem. Unable to get user information");
+			return this.getResponse(Response.Status.INTERNAL_SERVER_ERROR, "There was a problem. Unable to get user information");
 		} else if (!rs.next()) {
-			return this.getBadRequestResponse("User with id " + user.getId() + " not found.");
+			return this.getResponse(Response.Status.BAD_REQUEST, "User with id " + user.getId() + " not found.");
 		} else {
 			// Prepare data to send back to client
 			user.setName(rs.getString("name"));
@@ -49,39 +51,31 @@ public class Controller {
 			user.setEmail(rs.getString("email"));
 			user.setCreatedAt(rs.getTimestamp("created_at"));
 			user.setBiography(rs.getString("biography"));
-			return this.getOkResponse(user, "Data loaded succesfully");
+			return this.getResponse(Response.Status.OK, "Data loaded succesfully", user);
 		}
 	}
 
 	/*
 	 * Add error message to response
 	 */
-	protected Response getInternalServerErrorResponse(String message) {
-	    HashMap<String, Object> res = new HashMap<String, Object>();
-		res.put("message", message);
-		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(res).build();
+	protected Response getResponse(Status status, String message) {
+	  return this.getResponse(status, message, null, null);
 	}
-
-	protected Response getBadRequestResponse(String message) {
-        HashMap<String, Object> res = new HashMap<String, Object>();
-		res.put("message", message);
-		return Response.status(Response.Status.BAD_REQUEST).entity(res).build();
-	}
-
-	protected Response getOkResponse(Object data, String message) {
-        HashMap<String, Object> res = new HashMap<String, Object>();
-		res.put("message", message);
-		res.put("data", data);
-		return Response.status(Response.Status.OK).entity(res).build();
-	}
-
-	protected Response getCreatedResponse(Object data, String location, String message) {
-        HashMap<String, Object> res = new HashMap<String, Object>();
-		res.put("message", message);
-		res.put("data", data);
-		return Response.status(Response.Status.OK).entity(res).header("Location", location)
-				.header("Content-Location", location).build();
-	}
+	protected Response getResponse(Status status, String message, Object data) {
+      return this.getResponse(status, message, data, null);
+    }
+	protected Response getResponse(Status status, String message, Object data, String location) {
+      HashMap<String, Object> res = new HashMap<String, Object>();
+      res.put("message", message);
+      if(data != null) { 
+        res.put("data", data);
+      }
+      ResponseBuilder responseBuilder = Response.status(status).entity(res);
+      if(location != null) {
+        responseBuilder.header("Location", location).header("Content-Location", location);
+      }
+      return responseBuilder.build();
+    }
 	
 	protected HashMap<String, Object> getPagination(String name, int page, boolean showNext) {
       // TODO: Think about returning next attribute when for example we have 4 rows in our DB and the 

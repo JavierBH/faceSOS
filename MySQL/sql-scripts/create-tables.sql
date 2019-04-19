@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` varchar(100) NOT NULL,
   `biography` text,
   `created_at` TIMESTAMP NOT NULL DEFAULT NOW(),
+  `updated_at` TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
   PRIMARY KEY (`user_id`),
   CONSTRAINT user UNIQUE (`user_id`, `username`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;

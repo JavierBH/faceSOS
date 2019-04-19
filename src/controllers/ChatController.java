@@ -19,12 +19,12 @@ public class ChatController extends Controller {
 		chat.setReceiverUser(receiverUserId);
 
 		if (chat.getContent() == null || chat.getSenderUser().getId() == 0 || chat.getReceiverUser().getId() == 0) {
-			this.getBadRequestResponse("Cannot send message without one of the following parameters: "
+			this.getResponse(Response.Status.BAD_REQUEST, "Cannot send message without one of the following parameters: "
 					+ "senderUserId, receiverUserId or content in the body");
 		}
 
 		if (chat.getSenderUser().getId() == chat.getReceiverUser().getId()) {
-			this.getBadRequestResponse("User cannot send a chat to itself");
+			this.getResponse(Response.Status.BAD_REQUEST, "User cannot send a chat to itself");
 		}
 
 		// Check that both users exist
@@ -41,20 +41,19 @@ public class ChatController extends Controller {
 		ChatDB db = new ChatDB();
 		ResultSet rs = db.sendChat(chat);
 
-		if (rs != null && rs.next()) {
-			// Prepare data to send back to client
-			chat.setChatId(rs.getString(1));
-
-			HashMap<String, Object> data = new HashMap<String, Object>();
-			data.put("chat", chat);
-			data.put("from", senderUserInformation.getEntity());
-			data.put("to", receiverUserInformation.getEntity());
-			String location = this.getPath() + "/user/chat/" + chat.getChatId();
-			return this.getCreatedResponse(chat, location, "Chat created succesfully");
+		if (!rs.next()) {
+		    return this.getResponse(Response.Status.INTERNAL_SERVER_ERROR, "Unable to process request");
+			
 		}
+		// Prepare data to send back to client
+        chat.setChatId(rs.getString(1));
 
-		// Error
-		return this.getInternalServerErrorResponse("Unable to process request");
+        HashMap<String, Object> data = new HashMap<String, Object>();
+        data.put("chat", chat);
+        data.put("from", senderUserInformation.getEntity());
+        data.put("to", receiverUserInformation.getEntity());
+        String location = this.getPath() + "/user/chat/" + chat.getChatId();
+        return this.getResponse(Response.Status.OK, "Chat created succesfully", chat, location);
 	}
 
 }
