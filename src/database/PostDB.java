@@ -48,16 +48,16 @@ public class PostDB extends Conexion {
 		return ps.executeUpdate();
 	}
 
-	public ResultSet getPost(UserResource user, int limitTo) throws SQLException {
+	public ResultSet getPosts(UserResource user, int limitTo, int page) throws SQLException {
 	    if (this.conn == null) 
             return null;
 	    
-		String query = "SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC LIMIT ?;";
+		String query = "SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC LIMIT ?,?;";
 		PreparedStatement ps = this.conn.prepareStatement(query);
 		ps.setInt(1, user.getId());
-		ps.setInt(2, limitTo);
-		
-		// TODO what happens if MySQL return more than one result
+		ps.setInt(2, page * limitTo);
+		ps.setInt(3, page * limitTo + limitTo);
+        System.out.println("pg " + page + " li" + limitTo);
 		return ps.executeQuery();
 	}
 

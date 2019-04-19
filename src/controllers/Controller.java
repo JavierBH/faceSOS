@@ -16,7 +16,7 @@ public class Controller {
 	/*****************************/
 
 	private UriInfo uriInfo;
-	private final int ELEMENTS_PAGE = 25;
+	private final int ELEMENTS_PAGE = 2;
 
 	protected Controller(UriInfo uriInfo) {
 		this.uriInfo = uriInfo;
@@ -41,7 +41,7 @@ public class Controller {
 		if (rs == null) {
 			return this.getInternalServerErrorResponse("There was a problem. Unable to get user information");
 		} else if (!rs.next()) {
-			return this.getBadRequestResponse("User " + user.getId() + " not found.");
+			return this.getBadRequestResponse("User with id " + user.getId() + " not found.");
 		} else {
 			// Prepare data to send back to client
 			user.setName(rs.getString("name"));

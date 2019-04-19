@@ -3,6 +3,7 @@ package views;
 import java.sql.SQLException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -44,9 +45,9 @@ public class PostView {
 	}
 
 	@GET
-	public Response getPost(@QueryParam("limit-to") int limitTo,
-			@PathParam("userId") String userId) throws SQLException {
-		return new PostController(this.uriInfo).getPost(userId, limitTo);
+	public Response getPosts(@QueryParam("limit-to") int limitTo,
+			@PathParam("userId") String userId, @QueryParam("page") @DefaultValue("1") int page) throws SQLException {
+		return new PostController(this.uriInfo).getPosts(userId, limitTo, page);
 	}
 
 	@Path("/friends")

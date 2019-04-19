@@ -10,6 +10,7 @@ public class PostResource {
 	private String content;
 	private Timestamp createdAt;
     private Timestamp updatedAt;
+    private String location;
 
 	public PostResource() {
 	}
@@ -21,10 +22,10 @@ public class PostResource {
 
 	public PostResource(ResultSet rs, String baseUri) throws SQLException {
 	  this.postId = rs.getInt("post_id");
-	  this.user = new UserResource(rs.getInt("user_id"), baseUri);
 	  this.content = rs.getString("content");
 	  this.createdAt = rs.getTimestamp("created_at");
 	  this.updatedAt = rs.getTimestamp("updated_at");
+	  this.location = baseUri + "user/" + rs.getInt("user_id") + "/post/" + this.postId;
 	}
 
 	public PostResource(String content) {
@@ -50,6 +51,10 @@ public class PostResource {
 	public Timestamp getUpdatedAt() {
       return this.updatedAt;
     }
+	
+	public String getLocation() {
+	  return this.location;
+	}
 
 	public void setPostId(String postId) {
 		this.postId = Integer.parseInt(postId);
@@ -70,4 +75,8 @@ public class PostResource {
 	public void setUpdatedAt(Timestamp updatedAt) {
       this.updatedAt = updatedAt;
     }
+	
+	public void setLocation(String location) {
+	  this.location = location;
+	}
 }

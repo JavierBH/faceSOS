@@ -28,9 +28,10 @@ public class PostController extends Controller {
 		
 		UserResource user = new UserResource(userId);
         Response userInformation = this.getUserInformationReponse(user);
-        if(userInformation == null) {
+        if(userInformation.getStatus() != 200) {
           return userInformation;
         }
+        System.out.println("HOLA");
         user = (UserResource) ((HashMap<String, Object>) userInformation.getEntity()).get("data");
 		
 		post.setUser(user);
@@ -55,7 +56,7 @@ public class PostController extends Controller {
 		
 		UserResource user = new UserResource(userId);
         Response userInformation = this.getUserInformationReponse(user);
-        if(userInformation == null) {
+        if(userInformation.getStatus() != 200) {
           return userInformation;
         }
         user = (UserResource) ((HashMap<String, Object>) userInformation.getEntity()).get("data");
@@ -80,7 +81,7 @@ public class PostController extends Controller {
 
 		UserResource user = new UserResource(userId);
         Response userInformation = this.getUserInformationReponse(user);
-        if(userInformation == null) {
+        if(userInformation.getStatus() != 200) {
           return userInformation;
         }
         user = (UserResource) ((HashMap<String, Object>) userInformation.getEntity()).get("data");
@@ -101,27 +102,36 @@ public class PostController extends Controller {
 		return this.getInternalServerErrorResponse("There was an error. Unable to edit message");
 	}
 
-	public Response getPost(String userId, int limitTo) throws SQLException {
+	public Response getPosts(String userId, int limitTo, int page) throws SQLException {
 		UserResource user = new UserResource(userId);
         Response userInformation = this.getUserInformationReponse(user);
-        if(userInformation == null) {
+        if(userInformation.getStatus() != 200) {
           return userInformation;
         }
         user = (UserResource) ((HashMap<String, Object>) userInformation.getEntity()).get("data");
         
+        limitTo = this.getElementsPage(limitTo);
+        
 		// Set data in DB
 		PostDB db = new PostDB();
-		ResultSet rs = db.getPost(user, this.getElementsPage(limitTo));
+		ResultSet rs = db.getPosts(user, limitTo, page - 1);
 		
-		if (rs.next()) {
-			// Prepare data to send back to client
-		    PostResource post = new PostResource(rs, this.getBaseUri());
-			post.setUser(user);
-			return this.getOkResponse(post, "Post loaded succesfully");
+		if (rs == null) {
+		    // Error
+	        return this.getInternalServerErrorResponse("There was an error. Unable to get post");
 		}
+		
+		HashMap<String, Object> data = new HashMap<String, Object>();
+		ArrayList<PostResource> posts = new ArrayList<PostResource>();
 
-		// Error
-		return this.getInternalServerErrorResponse("There was an error. Unable to get message");
+		while(rs.next())
+		    posts.add(new PostResource(rs, this.getBaseUri()));
+		
+		data.put("posts", posts);
+		data.put("user", user);
+		System.out.println(limitTo + " " + posts.size());
+		data.put("pagination", this.getPagination(null, page, posts.size() == limitTo));
+		return this.getOkResponse(data, "Post loaded succesfully");
 	}
 
 	public Response getFriendsPosts(String userId, String content) throws SQLException {		
