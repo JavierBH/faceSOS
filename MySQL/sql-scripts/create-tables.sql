@@ -25,11 +25,10 @@ CREATE TABLE IF NOT EXISTS `chats` (
 
 
 CREATE TABLE IF NOT EXISTS `friends` (
-  UserID1 INT NOT NULL REFERENCES users(user_id),
-     UserID2 INT NOT NULL REFERENCES users(user_id),
-     CONSTRAINT CheckOneWay CHECK (UserID1 < UserID2),
-     CONSTRAINT PK_Friends_UserID1_UserID2 PRIMARY KEY (UserID1, UserID2),
-     CONSTRAINT UQ_Friends_UserID2_UserID1 UNIQUE (UserID2, UserID1)
+  user1_id int(10) unsigned NOT NULL,
+  user2_id int(10) unsigned NOT NULL,
+  FOREIGN KEY (`user1_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`user2_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
