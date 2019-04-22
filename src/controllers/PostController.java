@@ -30,13 +30,12 @@ public class PostController extends Controller {
 			this.getResponse(Response.Status.BAD_REQUEST, "Unable to post message: Content is of the post is empty.");
 		}
 		
-		
 		UserResource user = new UserResource(userId);
         Response userInformation = this.getUserInformationReponse(user);
         if(userInformation.getStatus() != 200) {
           return userInformation;
         }
-        
+
         user = (UserResource) ((HashMap<String, Object>) userInformation.getEntity()).get("data");
 		post.setUser(user);
 
@@ -47,9 +46,7 @@ public class PostController extends Controller {
 		if (!rs.next()) {
 	        return this.getResponse(Response.Status.INTERNAL_SERVER_ERROR, "There was an error. Unable to create a post");
 		}
-		
-		// Prepare data to send back to client
-		// TODO change 1 to "post_id"
+
 		post.setPostId(rs.getString(1));
 		String location = this.getPath() + "/post/" + post.getPostId();
 		return this.getResponse(Response.Status.CREATED, "Post created succesfully", post, location);		
@@ -78,7 +75,6 @@ public class PostController extends Controller {
 
 	public Response editPost(PostResource post, String postId, String userId) throws SQLException {
 		post.setPostId(postId);
-		System.out.println(userId);
 		UserResource user = new UserResource(userId);
         Response userInformation = this.getUserInformationReponse(user);
         if(userInformation.getStatus() != 200) {

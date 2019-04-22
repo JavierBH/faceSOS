@@ -33,8 +33,6 @@ public class PostDB extends Conexion {
 		
 		String query = "DELETE FROM faceSOS.posts WHERE post_id = ? AND user_id = ?;";
 		PreparedStatement ps = this.conn.prepareStatement(query);
-		System.out.println(post.getPostId());
-		System.out.println(post.getUser().getId());
 		ps.setInt(1, post.getPostId());
 		ps.setInt(2, post.getUser().getId());
 		return ps.executeUpdate();
