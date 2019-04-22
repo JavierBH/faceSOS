@@ -1,0 +1,1031 @@
+openapi: 3.0.0
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/U97/faceSOS/1.0.0
+info:
+  description: API para la práctica de servicios RESTful de SOS.
+  version: "1.0"
+  title: faceSOS API
+  contact:
+    email: maximo.garcia.martinez@alumnos.upm.es
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: Usuario
+    description: Operaciones relacionadas con usuarios
+  - name: Post
+    description: Operaciones que pueden realizar los usuarios usando posts
+  - name: Chat
+    description: Operaciones que permite tener chats entre usuarios
+paths:
+  /user:
+    get:
+      tags:
+        - Usuario
+      summary: Obtiene una lista de usuarios registrados
+      operationId: getUsers
+      description: |
+        Acepta parámetros para filtrar la búsqueda
+      parameters:
+        - in: query
+          name: name
+          description: Permite buscar por nombre de usuario.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: page
+          description: Número de la página.
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+        - in: query
+          name: limit-to
+          description: Máximo número de elementos que devuelve
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 1000
+      responses:
+        '200':
+          description: Operación realizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/UserList'
+        '400':
+          description: Parámetros incorrectos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '500':
+          description: Error en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+    post:
+      tags:
+        - Usuario
+      summary: Crea un nuevo usuario
+      operationId: createUser
+      description: Crea un nuevo usuario con los paramétros correspondientes 
+      parameters: 
+        - in: path
+          name: userId
+          description: Obtiene la información de un usuario
+          required: true
+          schema:
+            type: integer
+            format: int10
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        '400':
+          description: Parámetros incorrectos o insuficientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '409':
+          description: El username y/o email ya existe
+        '500':
+          description: Error en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserResource'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/UserResource'
+        description: Usuario a crear
+        
+  /user/{userId}:
+    get:
+      tags:
+        - Usuario
+      summary: Obtiene la información de un usuario
+      operationId: getUser
+      parameters: 
+        - in: path
+          name: userId
+          description: Id del usuario
+          required: true
+          schema:
+            type: integer
+            format: int10
+      responses:
+        '200':
+          description: Operación realizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        '400':
+          description: El usuario no existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '500':
+          description: Error en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          
+    put:
+      tags:
+        - Usuario
+      summary: Edita un nuevo usuario
+      operationId: editUser
+      description: Edita la información de un usuario con los paramétros correspondientes 
+      parameters: 
+        - in: path
+          name: userId
+          description: Id del usuario
+          required: true
+          schema:
+            type: integer
+            format: int10
+      responses:
+        '200':
+          description: Usuario editado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        '400':
+          description: Parámetros incorrectos o insuficientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '409':
+          description: El email ya existe
+        '500':
+          description: Error en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserResource'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/UserResource'
+        description: Datos para editar la información de un usuario
+    
+    delete:
+      tags:
+        - Usuario
+      summary: Elimina un usuario
+      operationId: deletUser
+      parameters: 
+        - in: path
+          name: userId
+          description: Id del usuario
+          required: true
+          schema:
+            type: integer
+            format: int10
+      responses:
+        '200':
+          description: Usuario eliminado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDelete'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/UserDelete'
+        '400':
+          description: Parámetros incorrectos o insuficientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '500':
+          description: Error en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          
+  /user/{userId}/friends:
+    get:
+      tags:
+        - Usuario
+      summary: Obtiene una lista de los amigos
+      operationId: getFriends
+      description: |
+        Acepta parámetros para filtrar la búsqueda
+      parameters:
+        - in: path
+          name: userId
+          description: Id del usuario del que se quiere saber sus amigos.
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: name
+          description: Permite buscar por nombre de usuario.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: page
+          description: Número de la página.
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+        - in: query
+          name: limit-to
+          description: Máximo número de elementos que devuelve
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 1000
+      responses:
+        '200':
+          description: Operación realizada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendList'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/FriendList'
+        '400':
+          description: Parámetros incorrectos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '500':
+          description: Error en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+  
+  /user/{userId}/app:
+    get:
+      tags:
+        - Usuario
+      summary: Obtiene información para la app.
+      operationId: getInfoApp
+      parameters:
+        - in: path
+          name: userId
+          description: Id del usuario que realiza la petición
+          required: true
+          schema:
+            type: integer
+            format: int10
+      responses:
+        '200':
+          description: Operación realizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/UserList'
+        '400':
+          description: Parámetros incorrectos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '500':
+          description: Error en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+                
+  /user/{userId}/friends/{friendId}:
+    post:
+      tags:
+        - Usuario
+      summary: Crea una nueva relación de amistad
+      operationId: addFriend
+      description: Se crea una relación de amistad reflexiva. Usuario A es amigo de B y viceversa.
+      parameters: 
+        - in: path
+          name: userId
+          description: Id del usuario que realiza la petición
+          required: true
+          schema:
+            type: integer
+            format: int10
+        - in: path
+          name: friendId
+          description: Id del usuario quien recibe la acción
+          required: true
+          schema:
+            type: integer
+            format: int10
+      responses:
+        '201':
+          description: Relación de amistad creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendList'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/FriendList'
+        '400':
+          description: Algún usuario no existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '500':
+          description: Error en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+    delete:
+      tags:
+        - Usuario
+      summary: Elimina una relación de amistad
+      operationId: removeFriend
+      description: Elimina la relacion de amistad entre A y B y entre B y A.
+      parameters: 
+        - in: path
+          name: userId
+          description: Id del usuario que realiza la petición
+          required: true
+          schema:
+            type: integer
+            format: int10
+        - in: path
+          name: friendId
+          description: Id del usuario quien recibe la acción
+          required: true
+          schema:
+            type: integer
+            format: int10
+      responses:
+        '200':
+          description: Relación de amistad eliminada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendList'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/FriendList'
+        '400':
+          description: Algún usuario no existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '500':
+          description: Error en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+  /user/{userId}/post:
+    get:
+      tags:
+        - Post
+      summary: Obtiene unal lista de los posts de un usuario
+      operationId: getPosts
+      parameters: 
+        - in: path
+          name: userId
+          description: Id del usuario que se quiere obtener los posts
+          required: true
+          schema:
+            type: integer
+            format: int10
+        - in: query
+          name: page
+          description: Número de la página.
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+        - in: query
+          name: limit-to
+          description: Máximo número de elementos que devuelve
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 1000
+      responses:
+        '200':
+          description: Operación realizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostList'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/PostList'
+        '400':
+          description: Parámetros incorrectos o insuficientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '500':
+          description: Error en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          
+    post:
+      tags:
+        - Post
+      summary: Crea un nuevo post
+      operationId: createPost
+      parameters: 
+        - in: path
+          name: userId
+          description: Id del usuario que quiere crear el post
+          required: true
+          schema:
+            type: integer
+            format: int10
+      responses:
+        '201':
+          description: Post creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostInfo'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/PostInfo'
+        '400':
+          description: Parámetros incorrectos o insuficientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '500':
+          description: Error en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostResource'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/PostResource'
+        description: Post a crear
+        
+  /user/{userId}/post/friends:
+    get:
+      tags:
+        - Post
+      summary: Obtiene unal lista de los posts de los amigos de un usuario
+      operationId: getFriendsPosts
+      parameters: 
+        - in: path
+          name: userId
+          description: Id del usuario que se quiere obtener los posts
+          required: true
+          schema:
+            type: integer
+            format: int10
+        - in: query
+          name: content
+          description: Filtra por los resultados según el patrón introducido
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: page
+          description: Número de la página.
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+        - in: query
+          name: limit-to
+          description: Máximo número de elementos que devuelve
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 1000
+      responses:
+        '200':
+          description: Operación realizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostList'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/PostList'
+        '400':
+          description: Parámetros incorrectos o insuficientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '500':
+          description: Error en el servidor 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+                
+  /user/{userId}/post/{postId}:
+    delete:
+      tags:
+        - Post
+      summary: Elimina un post
+      operationId: deletePost
+      parameters: 
+        - in: path
+          name: userId
+          description: Id del usuario que solicita la operación. Tiene que ser el autor del post.
+          required: true
+          schema:
+            type: integer
+            format: int10
+        - in: path
+          name: postId
+          description: Id del post que se quiere eliminar
+          required: true
+          schema:
+            type: integer
+            format: int10
+      responses:
+        '200':
+          description: Post eliminado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostDelete'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/PostDelete'
+        '400':
+          description: Parámetros incorrectos o insuficientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '500':
+          description: Error en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+    put:
+      tags:
+        - Post
+      summary: Edita la información de un post
+      operationId: editPOst
+      parameters: 
+        - in: path
+          name: userId
+          description: Id del usuario que solicita la operación. Tiene que ser el autor del post.
+          required: true
+          schema:
+            type: integer
+            format: int10
+        - in: path
+          name: postId
+          description: Id del post que se quiere eliminar
+          required: true
+          schema:
+            type: integer
+            format: int10
+            
+      responses:
+        '200':
+          description: Post editado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostInfo'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/PostInfo'
+        '400':
+          description: Parámetros incorrectos o insuficientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '500':
+          description: Error en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+          
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostResource'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/PostResource'
+        description: Editar la información de un post. No se puede editar la información del autor
+  /user/chat:
+    post:
+      tags:
+        - Chat
+      summary: Crea un nuevo chat
+      operationId: sendChat
+      parameters: 
+        - in: query
+          name: from
+          description: Id del usuario que envia el chat
+          required: true
+          schema:
+            type: integer
+            format: int10
+        - in: query
+          name: to
+          description: Id del usuario que recibe el chat
+          required: true
+          schema:
+            type: integer
+            format: int10
+      responses:
+        '201':
+          description: Chat enviado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatInfo'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ChatInfo'
+        '400':
+          description: Algún usuario no existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '500':
+          description: Error en el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatContent'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ChatContent'
+components:
+  schemas:
+    UserResource:
+      type: object
+      required:
+        - userId
+        - name
+        - username
+        - email
+        - createdAt
+        - updatedAt
+      properties:
+        userId:
+          type: integer
+          format: id
+          example: 92147
+        username:
+          type: string
+          example: iron_man
+        name:
+          type: string
+          example: Iron Man
+        email:
+          type: string
+          format: email
+          example: contact@ironman.com
+        createdAt:
+          type: string
+          format: date-time
+          example: '2016-08-29T09:12:33.001Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2018-10-29T10:03:56.127Z'
+        biography:
+          type: string
+        location:
+          type: string
+          format: url
+          example: 'https://api.faceSOS.com/user/92147'
+        friendsLocation:
+          type: string
+          format: url
+          example: 'https://api.faceSOS.com/user/92147/friends'
+          
+    PostResource:
+      required:
+        - postId
+        - content
+        - user
+        - createdAt
+        - updatedAt
+      properties:
+        postId:
+          type: integer
+          format: id
+          example: 761290
+        content:
+          type: string
+          example: 'Ojalá que no muera en Endgame'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2019-4-26T00:03:11.068Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2019-4-26T00:03:11.068Z'
+        user:
+          $ref: '#/components/schemas/UserResource'
+      type: object
+    
+    Pagination:
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          example: 2
+        next:
+          type: string
+          format: url
+        previous:
+          type: string
+          format: url
+          
+    UserListData:
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResource'
+        nusers:
+          type: integer
+          example: 1
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    UserList:
+      properties:
+        data:
+          $ref: '#/components/schemas/UserListData'
+        message:
+          type: string
+    
+    UserInfo:
+      properties:
+        data:
+          $ref: '#/components/schemas/UserResource'
+        message:
+          type: string
+    
+    UserDeleteInfo:
+      properties:
+        userId:
+          type: integer
+          format: id
+          example: 761290
+        
+    UserDelete:
+      properties:
+        data:
+          $ref: '#/components/schemas/UserDeleteInfo'
+        message:
+          type: string
+          example: 'User deleted succesfully'
+  
+    FriendList:
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResource'
+        message:
+          type: string
+          
+    PostInfo:
+      properties:
+        data:
+          $ref: '#/components/schemas/PostResource'
+        message:
+          type: string
+    
+    PostListData:
+      properties:
+        posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostResource'
+        npost:
+          type: integer
+          example: 1
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+          
+    PostList:
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostListData'
+        message:
+          type: string
+    
+    PostDeleteInfo:
+      properties:
+        userId:
+          type: integer
+          format: id
+          example: 7823
+          
+    PostDelete:
+      properties:
+        data:
+          $ref: '#/components/schemas/PostDeleteInfo'
+        message:
+          type: string
+          example: 'Post deleted succesfully'
+    
+    ChatResource:
+      required: 
+        - content
+        - senderUserId
+        - receiverUserId
+      properties:
+        content:
+          type: string
+          example: Doctor Strange también muere
+        senderUser:
+          $ref: '#/components/schemas/UserResource'
+        receiverUser:
+          $ref: '#/components/schemas/UserResource'
+          
+    ChatContent:
+      properties:
+        content:
+          type: string
+          example: Doctor Strange también muere
+          
+    ChatInfo:
+      properties:
+        data:
+          $ref: '#/components/schemas/ChatResource'
+        message:
+          type: string
+    
+    BadRequest:
+      properties:
+        message:
+          type: string
+          example: 'Datos incorrectos'
+    
+    ServerError:
+      properties:
+        message:
+          type: string
+          example: 'Ha habido un problema'
