@@ -3,6 +3,8 @@ package resources;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import javax.xml.bind.annotation.XmlRootElement;
+@XmlRootElement(name = "post")
 
 public class PostResource {
 	private int postId;
@@ -14,6 +16,13 @@ public class PostResource {
 
 	public PostResource() {
 	}
+	public PostResource(int id, ResultSet rs, String domain) throws SQLException {
+		  this.postId = id;
+		  this.content = rs.getString("content");
+		  this.location = domain + "post/" + this.getPostId();
+	      this.createdAt = rs.getTimestamp("created_at");
+	      this.updatedAt = rs.getTimestamp("updated_at");
+		}
 
 	public PostResource(String postId, String userId) {
 		this.postId = Integer.parseInt(postId);
@@ -31,7 +40,10 @@ public class PostResource {
 	public PostResource(String content) {
 		this.content = content;
 	}
-
+	public PostResource(int postId) {
+		this.postId = postId;
+	}
+	
 	public int getPostId() {
 		return this.postId;
 	}
@@ -59,7 +71,10 @@ public class PostResource {
 	public void setPostId(String postId) {
 		this.postId = Integer.parseInt(postId);
 	}
-
+	public void setPostId(int postId) {
+		this.postId = (postId);
+	}
+	
 	public void setUser(UserResource user) {
 		this.user = user;
 	}

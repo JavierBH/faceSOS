@@ -14,10 +14,6 @@ public class UserResource {
 	private String email;
 	private String biography;
 	private String location;
-	// WTF is friendsLocation?¿
-	// It is the URI where friends are located for the given userId,
-	// Useful in getUsers. Check that out !! Dont answer this via WhatsApp, answer
-	// here
 	private String friendsLocation;
 	private Timestamp createdAt;
 	private Timestamp updatedAt;
@@ -37,6 +33,12 @@ public class UserResource {
       this.userId = userId;
       this.location = location + "/user/" + this.userId;
     }
+	public UserResource(String username, String name,String email, String bio) {
+		this.username = username;
+		this.name = name;
+		this.biography = bio;
+		this.email = email;
+	}
 
 	public UserResource(int userId, String name, String username, String email, String biography, String location,
 			Timestamp createdAt,Timestamp updatedAt) {
@@ -102,7 +104,7 @@ public class UserResource {
 
 	public void setUserId(String userId) {
 		this.userId = Integer.parseInt(userId);
-	}
+		}
 
 	public void setUsername(String username) {
 		this.username = username;
@@ -132,14 +134,13 @@ public class UserResource {
 		this.createdAt = createdAt;
 	}
 	
-	public void seUpdatedAt(Timestamp updatedAt) {
+	public void setUpdatedAt(Timestamp updatedAt) {
       this.updatedAt = updatedAt;
     }
 
 	/*
 	 * Join two different objects.
 	 */
-	// TODO Check this function
 	public void join(UserResource user) {
 		if (user.getUsername() == null) {
 			this.name = user.getName();

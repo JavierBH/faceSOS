@@ -12,7 +12,6 @@ public class ChatResource {
 
 	public ChatResource() {
 	}
-
 	public ChatResource(String chatId) {
 		this.chatId = Integer.parseInt(chatId);
 	}
@@ -37,7 +36,9 @@ public class ChatResource {
 	public void setChatId(String chatId) {
 		this.chatId = Integer.parseInt(chatId);
 	}
-
+	public void setChatId(int chatId) {
+		this.chatId = chatId;
+	}
 	public void setSenderUser(String senderUserId) {
 		this.senderUser = new UserResource(senderUserId);
 	}

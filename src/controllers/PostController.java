@@ -2,12 +2,17 @@ package controllers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import database.PostDB;
 import resources.PostResource;
+import resources.Posts;
 import resources.UserResource;
 
 public class PostController extends Controller {
@@ -51,7 +56,7 @@ public class PostController extends Controller {
 	}
 
 	public Response deletePost(String userId, String postId) throws SQLException {
-		PostResource post = new PostResource(postId);
+		PostResource post = new PostResource();
 		
 		UserResource user = new UserResource(userId);
         Response userInformation = this.getUserInformationReponse(user);
@@ -59,11 +64,10 @@ public class PostController extends Controller {
           return userInformation;
         }
         user = (UserResource) ((HashMap<String, Object>) userInformation.getEntity()).get("data");
-        
+        // Set data in DB
         post.setUser(user);
-        
-		// Set data in DB
-		PostDB db = new PostDB();
+        post.setPostId(postId);
+        PostDB db = new PostDB();
 		int affectedRows = db.deletePost(post);
 
 		if (affectedRows <= 0) {
@@ -74,7 +78,7 @@ public class PostController extends Controller {
 
 	public Response editPost(PostResource post, String postId, String userId) throws SQLException {
 		post.setPostId(postId);
-
+		System.out.println(userId);
 		UserResource user = new UserResource(userId);
         Response userInformation = this.getUserInformationReponse(user);
         if(userInformation.getStatus() != 200) {
@@ -99,19 +103,28 @@ public class PostController extends Controller {
         return this.getResponse(Response.Status.OK, "Post updated succesfully", post, location);
 	}
 
-	public Response getPosts(String userId, int limitTo, int page) throws SQLException {
+	public Response getPosts(String userId, int limitTo, int page, String date) throws SQLException {
+		Date d = null;
 		UserResource user = new UserResource(userId);
         Response userInformation = this.getUserInformationReponse(user);
         if(userInformation.getStatus() != 200) {
           return userInformation;
         }
+        if(!date.equals("")) {
+        	DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        	try {
+				d = df.parse(date);
+				
+			} catch (ParseException e) {
+				System.err.println("Date formate is not correct");
+				System.err.println("Should be dd-MM-yyyy");
+			}
+        }
         user = (UserResource) ((HashMap<String, Object>) userInformation.getEntity()).get("data");
         
-        limitTo = this.getElementsPage(limitTo);
-        
-		// Set data in DB
+        // Set data in DB
 		PostDB db = new PostDB();
-		ResultSet rs = db.getPosts(user, limitTo, page - 1);
+		ResultSet rs = db.getPosts(user, limitTo, page - 1, d);
 		
 		if (rs == null) {
 		    // Error
@@ -119,18 +132,19 @@ public class PostController extends Controller {
 		}
 		
 		HashMap<String, Object> data = new HashMap<String, Object>();
-		ArrayList<PostResource> posts = new ArrayList<PostResource>();
+		Posts p = new Posts();
+		ArrayList<PostResource> posts = p.getPosts();
 
 		while(rs.next())
 		    posts.add(new PostResource(rs, this.getBaseUri()));
 		
 		data.put("posts", posts);
 		data.put("user", user);
-		data.put("pagination", this.getPagination(null, page, posts.size() == limitTo));
+		data.put("pagination", this.getPagination(null,null, page, posts.size() > limitTo));
 		return this.getResponse(Response.Status.OK, "Post loaded succesfully", data);
 	}
 
-	public Response getFriendsPosts(String userId, String content) throws SQLException {		
+	public Response getFriendsPosts(String userId, String content, int limitTo, int page) throws SQLException {		
 		// Check that user exists
 		UserResource user = new UserResource(userId);
         Response userInformation = this.getUserInformationReponse(user);
@@ -140,7 +154,7 @@ public class PostController extends Controller {
 		
         
         PostDB db = new PostDB();
-		ResultSet rs = db.getPostFriends(user, content);
+		ResultSet rs = db.getPostFriends(user, content, limitTo, page);
 		
 		if (rs == null) {
 		  return this.getResponse(Response.Status.INTERNAL_SERVER_ERROR, "Unable to get friends information");
@@ -155,6 +169,7 @@ public class PostController extends Controller {
         data.put("user", user);
         data.put("posts", posts);
         data.put("nposts", posts.size());
+        data.put("pagination", this.getPagination(content,"content", page, posts.size() == limitTo));
         return this.getResponse(Response.Status.OK, "Data loaded succesfully", posts);
 	}
 }

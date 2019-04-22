@@ -1,0 +1,54 @@
+Hemos usado preparedStatement para ejecutar las sentencias SQL. Por esa razón, las variables han sido sustituidas por ?, que en el código se sustituye por su variable correspondiente.
+
+Operaciones relacionadas con usuario:
+SELECT * FROM users WHERE user_id = ?;
+Obtiene la información de un usuario
+
+INSERT INTO users (name,username,email,biography) VALUE (?,?,?,?);
+Crea un nuevo usuario.
+
+UPDATE users SET (name,biography) = (?,?) WHERE user_id = ?;
+Edita la información de un usuario. No se permite editar ni id, ni email y ni username.
+
+DELETE FROM users WHERE user_id = ?;
+Elimina un usuario.
+
+SELECT * FROM users WHERE name LIKE ? LIMIT ?,?;
+Obtiene una lista de usuarios.
+‘WHERE name LIKE ?’ es opcional
+
+
+Operaciones relacionadas con posts:
+INSERT INTO posts (user_id,content) VALUE (?,?);
+Crea un post.
+
+DELETE FROM posts WHERE post_id = ? AND user_id = ?;
+Elimina un post.
+
+UPDATE posts SET content = ?  WHERE post_id = ? AND user_id = ?;
+Actualiza un post.
+
+SELECT * FROM posts WHERE user_id = ?;
+Obtiene los post de un usuario.
+
+SELECT * FROM posts JOIN friends ON (posts.user_id = friends.user2_id) WHERE friends.user1_id= ? AND faceSOS.posts.content LIKE ? LIMIT ?,?; 
+Selecciona posts de los amigos de un usuario.
+‘AND faceSOS.posts.content LIKE ? ’ es opcional.
+
+
+Operaciones relacionadas con amigos:
+SELECT faceSOS.friends.*, faceSOS.users.* FROM faceSOS.users JOIN faceSOS.friends ON (faceSOS.users.user_id = faceSOS.friends.user2_id) WHERE faceSOS.friends.user1_id = ? AND (faceSOS.users.name like ? or faceSOS.users.username LIKE ?) LIMIT ?,?;
+Obtiene una lista de los amigos de un usuario.
+’AND (faceSOS.users.name like ? or faceSOS.users.username LIKE ?)’ es opcional.
+
+INSERT IGNORE INTO faceSOS.friends (user1_id,user2_id) VALUES (?,?);
+Añade una relación de amistad.
+
+DELETE FROM faceSOS.friends WHERE (user1_id = ? AND user2_id = ?);
+Elimina una relación de amistad.
+
+
+Operaciones relacionadas con amigos:
+INSERT INTO faceSOS.chats (sender_user_id, receiver_user_id, content) VALUE (?,?,?)
+Crea un nuevo chat
+

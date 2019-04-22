@@ -10,22 +10,16 @@ import javax.ws.rs.core.UriInfo;
 import database.UserDB;
 import resources.UserResource;
 
+
 public class Controller {
-	/*****************************/
-	// TODO: Check codes. Right now, we have:
-	// PUT and POST return CREATED => 201
-	// GET and DELETE return OK => 200
-	/*****************************/
-
+	
 	private UriInfo uriInfo;
-	private final int ELEMENTS_PAGE = 2;
-
+	
 	protected Controller(UriInfo uriInfo) {
 		this.uriInfo = uriInfo;
 	}
 
 	protected String getPath() {
-		// TODO: Remove last char if it is sidebar ('/')
 		return this.uriInfo.getAbsolutePath().toString();
 	}
 	
@@ -33,10 +27,7 @@ public class Controller {
 	    return this.uriInfo.getBaseUri().toString();
 	}
 	
-	protected int getElementsPage(int userChoice) {
-	  return userChoice != 0 ? userChoice : this.ELEMENTS_PAGE;
-	}
-
+	
 	protected Response getUserInformationReponse(UserResource user) throws SQLException {
 		UserDB db = new UserDB();
 		ResultSet rs = db.getUser(user);
@@ -47,14 +38,27 @@ public class Controller {
 		} else {
 			// Prepare data to send back to client
 			user.setName(rs.getString("name"));
-			user.setUsername(rs.getString("username"));
+			user.setUsername(rs.getString("username")); 
 			user.setEmail(rs.getString("email"));
-			user.setCreatedAt(rs.getTimestamp("created_at"));
+			user.setUpdatedAt(rs.getTimestamp("updated_at"));
 			user.setBiography(rs.getString("biography"));
 			return this.getResponse(Response.Status.OK, "Data loaded succesfully", user);
 		}
 	}
-
+	
+	/*
+	 * Get number of friends of an user
+	 */
+	protected int getUserNumberFriends(UserResource user) throws SQLException {
+		
+		UserDB db = new UserDB();
+		ResultSet rs = db.getUserNumberFriends(user);
+		if(rs.next()) 
+			return rs.getInt(1);
+		
+		return -1;
+	}
+	
 	/*
 	 * Add error message to response
 	 */
@@ -77,13 +81,23 @@ public class Controller {
       return responseBuilder.build();
     }
 	
-	protected HashMap<String, Object> getPagination(String name, int page, boolean showNext) {
-      // TODO: Think about returning next attribute when for example we have 4 rows in our DB and the 
-      // limitTo is the same
+	protected HashMap<String, Object> getPagination(String name, String filter, int page, boolean showNext) {
       HashMap<String, Object> pagination = new HashMap<String, Object>();
       pagination.put("page", page);
-      String base = this.getPath() + "?"
-              + (name != null ? "name=" + name + "&" : "");
+      String base = this.getPath() + "?";
+      if(name != null) {
+      	switch(filter) {
+      		case "name":
+      			base += "name=" + name + "&";
+      			break;
+      		case "content":
+      			base += "content=" + name + "&";
+      			break;
+      		default:
+      			base += "date=" + name + "&";
+      	}
+      }
+    	  
       if(showNext)
           pagination.put("next", base + "page=" + (page + 1));
       if(page != 1)
